@@ -1,0 +1,20 @@
+{
+    "name": "kepex/laravel-crud-generator",
+    "description": "php artisan command to generate fully working crud with grid paginated server side only by having database tables",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alfredo Aguirre",
+            "email": "alfrednx@gmail.com"
+        }
+     ],
+    "require": {
+        "php": ">=5.5.9",
+        "laravel/framework": ">=5.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "CrudGenerator\\": "src/"
+        }
+    }
+}
