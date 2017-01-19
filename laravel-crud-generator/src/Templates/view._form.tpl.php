@@ -1,64 +1,30 @@
 
 
 [[foreach:columns]]
-    [[if:i.type=='id']]
     <div class="form-group">
-        <label for="[[i.name]]" class="col-sm-3 control-label">[[i.display]]</label>
+        {!! Form::label('[[i.name]]', '[[i.display]]:', ['class' => 'col-sm-3 control-label']) !!}
         <div class="col-sm-6">
-            <input type="text" name="[[i.name]]" id="[[i.name]]" class="form-control" value="{{$model['[[i.name]]'] or ''}}" readonly="readonly">
+        [[if:i.type=='id']]
+            {!! Form::text('[[i.name]]', null, ['id' => '[[i.name]]', 'class' => 'form-control', 'readonly' => 'readonly']) !!}
+        [[endif]]
+        [[if:i.type=='text']]
+            {!! Form::text('[[i.name]]', null, ['id' => '[[i.name]]', 'class' => 'form-control']) !!}
+        [[endif]]
+        [[if:i.type=='number']]
+            {!! Form::number('[[i.name]]', null, ['id' => '[[i.name]]', 'class' => 'form-control']) !!}
+        [[endif]]
+        [[if:i.type=='related']]
+            {!! Form::select('[[i.name]]', $model->[[i.relatedName]]List, null, ['placeholder' => 'Please select:', 'class' => 'form-control']) !!}
+        [[endif]]
+        [[if:i.type=='date']]
+            {!! Form::date('[[i.name]]', null, ['id' => '[[i.name]]', 'class' => 'form-control']) !!}
+        [[endif]]
+        [[if:i.type=='textarea']]
+            {!! Form::textarea('[[i.name]]', null, ['id' => '[[i.name]]', 'class' => 'form-control']) !!}
+        [[endif]]
+        [[if:i.type=='unknown']]
+            {!! Form::text('[[i.name]]', null, ['id' => '[[i.name]]', 'class' => 'form-control']) !!}
+        [[endif]]
         </div>
     </div>
-    [[endif]]
-    [[if:i.type=='text']]
-    <div class="form-group">
-        <label for="[[i.name]]" class="col-sm-3 control-label">[[i.display]]</label>
-        <div class="col-sm-6">
-            <input type="text" name="[[i.name]]" id="[[i.name]]" class="form-control" value="{{$model['[[i.name]]'] or ''}}">
-        </div>
-    </div>
-    [[endif]]
-    [[if:i.type=='number']]
-        <div class="form-group">
-            <label for="[[i.name]]" class="col-sm-3 control-label">[[i.display]]</label>
-            <div class="col-sm-2">
-                <input type="number" name="[[i.name]]" id="[[i.name]]" class="form-control" value="{{$model['[[i.name]]'] or ''}}">
-            </div>
-        </div>
-    [[endif]]
-    [[if:i.type=='related']]
-    <div class="form-group">
-        <label for="[[i.name]]" class="col-sm-3 control-label">[[i.display]]</label>
-        <div class="col-sm-6">
-            {!!
-                Form::select('[[i.name]]', $model->[[i.relatedName]]List, null, ['placeholder' => 'Please select:', 'class' => 'form-control'])
-            !!}
-        </div>
-    </div>
-    [[endif]]
-    [[if:i.type=='date']]
-    <div class="form-group">
-        <label for="[[i.name]]" class="col-sm-3 control-label">[[i.display]]</label>
-        <div class="col-sm-3">
-            <input type="date" name="[[i.name]]" id="[[i.name]]" class="form-control" value="{{$model['[[i.name]]'] or ''}}">
-        </div>
-    </div>
-    [[endif]]
-    [[if:i.type=='textarea']]
-    <div class="form-group">
-        <label for="[[i.name]]" class="col-sm-3 control-label">[[i.display]]</label>
-        <div class="col-sm-6">
-            <textarea name="[[i.name]]" id="[[i.name]]" class="form-control" rows="6" cols="50"
-                      value="{{$model['[[i.name]]'] or ''}}">
-            </textarea>
-        </div>
-    </div>
-    [[endif]]
-    [[if:i.type=='unknown']]
-    <div class="form-group">
-        <label for="[[i.name]]" class="col-sm-3 control-label">[[i.display]]</label>
-        <div class="col-sm-6">
-            <input type="text" name="[[i.name]]" id="[[i.name]]" class="form-control" value="{{$model['[[i.name]]'] or ''}}">
-        </div>
-    </div>
-    [[endif]]
 [[endforeach]]

@@ -25,7 +25,9 @@
                 <button type="submit" class="btn btn-success">
                     <i class="fa fa-plus"></i> Update
                 </button>
-                <a class="btn btn-default" href="{{ url('/[[route_path]]') }}"><i class="glyphicon glyphicon-chevron-left"></i> Back</a>
+                <a class="btn btn-default" href="{{ url('/[[route_path]]') }}">
+                    <i class="glyphicon glyphicon-chevron-left"></i> Back
+                </a>
             </div>
         </div>
 

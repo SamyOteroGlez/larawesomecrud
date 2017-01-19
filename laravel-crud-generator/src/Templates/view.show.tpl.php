@@ -18,7 +18,7 @@
         [[foreach:columns]]
         
         <div class="form-group">
-            <label for="[[i.name]]" class="col-sm-3 control-label">[[i.display]]</label>
+            {!! Form::label('[[i.name]]', '[[i.display]]:', ['class' => 'col-sm-3 control-label']) !!}
             <div class="col-sm-6">
                 [[if:i.type=='id']]
                     {!! Form::text('[[i.name]]', $model->[[i.name]], ['class' => 'form-control', 'readonly' => 'readonly'])!!}
@@ -36,9 +36,7 @@
                     {!! Form::date('[[i.name]]', $model->[[i.name]], ['class' => 'form-control', 'readonly' => 'readonly'])!!}
                 [[endif]]
                 [[if:i.type=='textarea']]
-                    <textarea name="[[i.name]]" id="[[i.name]]" class="form-control" rows="6" cols="50"
-                      value="{{$model['[[i.name]]'] or ''}}">
-                    </textarea>
+                    {!! Form::textarea('[[i.name]]', $model->[[i.name]], ['class' => 'form-control', 'readonly' => 'readonly'])!!}
                 [[endif]]
                 [[if:i.type=='unknown']]
                     {!! Form::text('[[i.name]]', $model->[[i.name]], ['class' => 'form-control', 'readonly' => 'readonly'])!!}
