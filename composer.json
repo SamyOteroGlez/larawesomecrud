@@ -1,13 +1,15 @@
 {
-    "name": "kepex/laravel-crud-generator",
-    "description": "php artisan command to generate fully working crud with grid paginated server side only by having database tables",
+    "name": "samyoteroglez/larawesomecrud",
+    "description": "CRUD generator for Laravel. Generates models, controller and views based on the database tables. This project is a fork of kEpEx/laravel-crud-generator from Alfredo Aguirre (alfrednx@gmail.com).",
+    "type": "library",
     "license": "MIT",
     "authors": [
         {
-            "name": "Alfredo Aguirre",
-            "email": "alfrednx@gmail.com"
+            "name": "Samy Otero Glez",
+            "email": "otero.glez.samy@gmail.com"
         }
-     ],
+    ],
+    "minimum-stability": "dev",
     "require": {
         "php": ">=5.5.9",
         "laravel/framework": ">=5.0.0"
