@@ -1,13 +1,11 @@
-# laravel-crud-generator
+# larawesomecrud
 
-[![Latest Stable Version](https://poser.pugx.org/kepex/laravel-crud-generator/v/stable)](https://packagist.org/packages/kepex/laravel-crud-generator) [![Total Downloads](https://poser.pugx.org/kepex/laravel-crud-generator/downloads)](https://packagist.org/packages/kepex/laravel-crud-generator) [![Latest Unstable Version](https://poser.pugx.org/kepex/laravel-crud-generator/v/unstable)](https://packagist.org/packages/kepex/laravel-crud-generator) [![License](https://poser.pugx.org/kepex/laravel-crud-generator/license)](https://packagist.org/packages/kepex/laravel-crud-generator)
-
-php artisan command to generate fully working crud with grid paginated server side only by having database tables
+CRUD generator for Laravel. Generates models, controller and views based on the database tables. This project is a fork of kEpEx/laravel-crud-generator from Alfredo Aguirre (alfrednx@gmail.com).
 
 
 ###Installing
 
-	php composer.phar require kepex/laravel-crud-generator
+	to do
 
 
 Add to config/app.php the following line to the 'providers' array:
@@ -15,29 +13,40 @@ Add to config/app.php the following line to the 'providers' array:
     CrudGenerator\CrudGeneratorServiceProvider::class,
 
 
-![Preview](https://raw.githubusercontent.com/kEpEx/laravel-crud-generator/master/preview.gif)
-
-
 ###Usage
 
 Use the desired model name as the input 
 
 
-CRUD for students table
+Generate CRUD for one table
 
-	php artisan make:crud student
+	php artisan make:crud table_1
 
-or the whole database
+Generate CRUD for all database
 
 	php artisan make:crud all
+	php artisan make:crud --all
+	php artisan make:crud -a
+	php artisan make:crud
+	
+Generate CRUD for a list of tables
 
-whole database with custom layout
+	php artisan make:crud table_1,table_2,table_3 --only
+	php artisan make:crud table_1,table_2,table_3 -o
+
+Generate CRUD for all except for the lables in a given list
+
+	php artisan make:crud table_1,table_2,table_3 --all-but
+	php artisan make:crud table_1,table_2,table_3 -b
+
+Generate CRUD for all database with a custom layout
 
 	php artisan make:crud all --master-layout=layouts.master 
 
-Because sometimes you need boilerplate code only for view and controller, you can use an existing model with custom controller name
+Use singular names
 
-	php artisan make:crud student --master-layout=master --custom-controller=dashboard	
+	php artisan make:crud table_1 --singular
+	php artisan make:crud table_1 -s
 
 For more options 
 
@@ -45,7 +54,7 @@ For more options
 
 ###Custom Templates
 
-The best power of this plugin relies on you making your own templates and generating the code the way you like
+You can customize your own templates
 
 Run this command:
 
@@ -53,6 +62,5 @@ Run this command:
 
 and you will have now in resources/templates/ the files you need to modify
 
-If you want to go back to the default, just delete them
+If you want to go back to the default, just delete them.
 
-Let me know if you have any questions or if you find this library useful at twitter @[kEpEx](https://twitter.com/kepex)
