@@ -56,14 +56,14 @@ class CrudGeneratorService
             if(file_exists(base_path().'/resources/views/'.$this->viewFolderName.'/index.blade.php')) { $this->output->info('Index view already exists, use --force to overwrite');  return; }
         }
 
+        $this->deletePreviousFiles($options['tablename']);
+
+        $columns = $this->createModel($modelname, $this->prefix, $this->tableName);
+
         if($this->formRequest) {
             Artisan::call('make:request', ['name' => $modelname . 'FormRequest']);
             $this->output->info('FormRequest Name: ' . $modelname . 'FormRequest');
         }
-
-        $this->deletePreviousFiles($options['tablename']);
-
-        $columns = $this->createModel($modelname, $this->prefix, $this->tableName);
         
         $options['columns'] = $columns;
         $options['first_column_nonid'] = count($columns) > 1 ? $columns[1]['name'] : '';

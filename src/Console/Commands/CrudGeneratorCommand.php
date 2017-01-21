@@ -23,10 +23,11 @@ class CrudGeneratorCommand extends Command
         {--r|--formrequest : Generates the form request}
         {--f|--force : Force to generate the CRUD}
         {--s|--singular : Use singular names}
-        {--table-name= : Generate for a particular table name}
         {--master-layout= : Use a particular layout}
         {--custom-controller= : Generate the views and the controller only}
         {--black-list : Show the ignored tables}';
+
+    //Todo {--table-name= : Generate for a particular table name}
 
     /**
      * The console command description.
