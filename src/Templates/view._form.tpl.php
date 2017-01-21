@@ -1,6 +1,6 @@
 
 [[foreach:columns]]
-    <div class="form-group">
+    <div class="form-group {{ $errors->has('[[i.name]]') ? 'has-error' : ''}}">
         {!! Form::label('[[i.name]]', '[[i.display]]:', ['class' => 'col-sm-3 control-label']) !!}
         <div class="col-sm-6">
         [[if:i.type=='id']]

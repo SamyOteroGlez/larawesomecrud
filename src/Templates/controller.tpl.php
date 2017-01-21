@@ -21,7 +21,7 @@ class [[controller_name]]Controller extends Controller
 		$this->model = $model;
     }
 
-    public function index(Request $request)
+    public function index()
 	{
 		$[[model_singular]] = $this->model->paginate();
 
@@ -30,7 +30,7 @@ class [[controller_name]]Controller extends Controller
 		]);
 	}
 
-	public function create([[formrequest]] $request)
+	public function create()
 	{
 		$[[model_singular]] = $this->model->newInstance();
 
@@ -49,7 +49,7 @@ class [[controller_name]]Controller extends Controller
 			->withSuccess('[[model_uc]] created!');
 	}
 
-	public function show(Request $request, $id)
+	public function show($id)
 	{
 		$[[model_singular]] = $this->model->findOrFail($id);
 
@@ -58,7 +58,7 @@ class [[controller_name]]Controller extends Controller
 		]);
 	}
 
-	public function edit([[formrequest]] $request, $id)
+	public function edit($id)
 	{
 		$[[model_singular]] = $this->model->findOrFail($id);
 
@@ -77,57 +77,12 @@ class [[controller_name]]Controller extends Controller
 			->withSuccess('[[model_uc]] updated!');
 	}
 
-	public function destroy([[formrequest]] $request, $id)
+	public function destroy($id)
 	{
 		$[[model_singular]] = $this->model->findOrFail($id);
 		$[[model_singular]]->delete();
 
 //		return redirect()->route('[[model_plural]].index', [])
 //			->withSuccess('[[model_uc]] deleted!');
-	}
-
-	public function grid(Request $request)
-	{
-		if($request->ajax()) {
-			$len = $_GET['length'];
-			$start = $_GET['start'];
-
-			$select = "SELECT *,1,2 ";
-			$presql = " FROM [[prefix]][[tablename]] a ";
-
-			if($_GET['search']['value']) {
-				$presql .= " WHERE [[first_column_nonid]] LIKE '%".$_GET['search']['value']."%' ";
-			}
-
-			$presql .= "  ";
-
-			$sql = $select.$presql." LIMIT ".$start.",".$len;
-
-
-			$qcount = DB::select("SELECT COUNT(a.id) c".$presql);
-			//print_r($qcount);
-			$count = $qcount[0]->c;
-
-			$results = DB::select($sql);
-			$ret = [];
-
-			foreach ($results as $row) {
-				$r = [];
-
-				foreach ($row as $value) {
-					$r[] = $value;
-				}
-				$ret[] = $r;
-			}
-
-			$ret['data'] = $ret;
-			$ret['recordsTotal'] = $count;
-			$ret['iTotalDisplayRecords'] = $count;
-
-			$ret['recordsFiltered'] = count($ret);
-			$ret['draw'] = $_GET['draw'];
-
-			echo json_encode($ret);
-		}
 	}
 }
