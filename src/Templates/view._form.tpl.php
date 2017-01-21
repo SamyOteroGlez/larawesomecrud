@@ -1,5 +1,4 @@
 
-
 [[foreach:columns]]
     <div class="form-group">
         {!! Form::label('[[i.name]]', '[[i.display]]:', ['class' => 'col-sm-3 control-label']) !!}

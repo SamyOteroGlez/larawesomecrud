@@ -4,7 +4,7 @@ namespace [[appns]]Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use [[appns]]Http\Requests;
+use [[appns]]Http\Requests\[[formrequest]];
 use [[appns]]Http\Controllers\Controller;
 
 use [[appns]][[model_uc]];
@@ -24,7 +24,7 @@ class [[controller_name]]Controller extends Controller
 	    return view('[[view_folder]].index', []);
 	}
 
-	public function create(Request $request)
+	public function create([[formrequest]] $request)
 	{
 		$model = new [[model_uc]]();
 
@@ -33,7 +33,7 @@ class [[controller_name]]Controller extends Controller
 	    ]);
 	}
 
-	public function store(Request $request)
+	public function store([[formrequest]] $request)
 	{
 		$[[model_singular]] = new [[model_uc]]();
 		$[[model_singular]]->fill($request->all());
@@ -51,7 +51,7 @@ class [[controller_name]]Controller extends Controller
 		]);
 	}
 
-	public function edit(Request $request, $id)
+	public function edit([[formrequest]] $request, $id)
 	{
 		$[[model_singular]] = [[model_uc]]::findOrFail($id);
 
@@ -60,7 +60,7 @@ class [[controller_name]]Controller extends Controller
 	    ]);
 	}
 
-	public function update(Request $request, $id)
+	public function update([[formrequest]] $request, $id)
 	{
 		$[[model_singular]] = [[model_uc]]::findOrFail($id);
 		$[[model_singular]]->fill($request->all());
@@ -69,7 +69,7 @@ class [[controller_name]]Controller extends Controller
 	    return redirect('/[[route_path]]');
 	}
 
-	public function destroy(Request $request, $id)
+	public function destroy([[formrequest]] $request, $id)
 	{
 		$[[model_singular]] = [[model_uc]]::findOrFail($id);
 

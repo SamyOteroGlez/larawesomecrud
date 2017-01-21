@@ -2,7 +2,6 @@
 
 @section('content')
 
-
 <h2 class="page-header">{{ ucfirst('[[model_plural]]') }}</h2>
 
 <div class="panel panel-default">
@@ -30,14 +29,10 @@
     </div>
 </div>
 
-
-
-
 @endsection
 
-
-
 @section('scripts')
+
     <script type="text/javascript">
         var theGrid = null;
         $(document).ready(function(){
@@ -78,4 +73,5 @@
             return false;
         }
     </script>
+
 @endsection
