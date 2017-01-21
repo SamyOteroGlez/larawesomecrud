@@ -4,6 +4,15 @@
 
 <h2 class="page-header">[[model_uc]]</h2>
 
+<div class="btn-group" role="group">
+    <a href="{{url('[[route_path]]/')}}" class="btn btn-primary btn-sm" role="button">
+        <i class="glyphicon glyphicon-th-list"></i>
+        List of {{ ucfirst('[[model_plural]]') }}
+    </a>
+</div>
+<div class="clearfix"><div/>
+<br/>
+
 <div class="panel panel-default">
     <div class="panel-heading">
         Create [[model_uc]]
@@ -20,11 +29,9 @@
         <div class="form-group">
             <div class="col-sm-offset-3 col-sm-6">
                 <button type="submit" class="btn btn-success">
-                    <i class="fa fa-plus"></i> Save
+                    <i class="glyphicon glyphicon-ok"></i>
+                    Save
                 </button>
-                <a class="btn btn-default" href="{{ url('/[[route_path]]') }}">
-                    <i class="glyphicon glyphicon-chevron-left"></i> Back
-                </a>
             </div>
         </div>
 
