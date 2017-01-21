@@ -20,6 +20,7 @@ class CrudGeneratorCommand extends Command
         {--a|--all : Generate all the models}
         {--o|--only : Generate all the models in the list}
         {--b|--all-but : Generate all the models except for the ones in the list}
+        {--r|--formrequest : Generates the form request}
         {--f|--force : Force to generate the CRUD}
         {--s|--singular : Use singular names}
         {--table-name= : Generate for a particular table name}
@@ -63,6 +64,8 @@ class CrudGeneratorCommand extends Command
         $this->custom_table_name = $this->option('table-name');
         $this->custom_controller = $this->option('custom-controller');
         $this->singular = $this->option('singular');
+        $this->formrequest = false;
+        $this->info('');
 
         if('black-list' == $this->option('black-list')) {
             $this->comment('This tables are excluded: ');
@@ -129,6 +132,10 @@ class CrudGeneratorCommand extends Command
             $tocreate = [$tocreate];
         }
 
+        if('formrequest' == $this->option('formrequest')) {
+            $this->formrequest = true;
+        }
+
         foreach ($tocreate as $c) {
             $generator = new \CrudGenerator\CrudGeneratorService();
             $generator->output = $this;
@@ -136,7 +143,7 @@ class CrudGeneratorCommand extends Command
             $generator->appNamespace = Container::getInstance()->getNamespace();
             $generator->modelName = ucfirst($c['modelname']);
             $generator->tableName = $c['tablename'];
-
+            $generator->formRequest = $this->formrequest;
             $generator->prefix = $this->prefix;
             $generator->force = $this->option('force');
             $generator->layout = $this->option('master-layout');
