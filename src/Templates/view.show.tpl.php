@@ -2,8 +2,6 @@
 
 @section('content')
 
-
-
 <h2 class="page-header">[[model_uc]]</h2>
 
 <div class="panel panel-default">
@@ -59,11 +57,5 @@
 
     </div>
 </div>
-
-
-
-
-
-
 
 @endsection
