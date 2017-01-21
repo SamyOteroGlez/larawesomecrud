@@ -10,22 +10,56 @@
     </div>
 
     <div class="panel-body">
+        @if(!$model->isEmpty())
         <div class="">
-            <table class="table table-striped" id="thegrid">
+            <table class="table table-striped" id="tbl-datatable">
               <thead>
                 <tr>
-                    [[foreach:columns]]
+                [[foreach:columns]]
                     <th>[[i.display]]</th>
-                    [[endforeach]]
-                    <th style="width:50px"></th>
-                    <th style="width:50px"></th>
+                [[endforeach]]
+                    <th style="width:200px"></th>
                 </tr>
               </thead>
               <tbody>
+              @foreach($model as $obj)
+                <tr>
+                    [[foreach:columns]]
+                    <td>{{ $obj->[[i.name]] }}</td>
+                    [[endforeach]]
+                    <td>
+                        <div class="btn-group" role="group">
+                          <a href="{{route('students.show', [$obj->id])}}"
+                             class="btn btn-info btn-sm" role="button">
+                              Details
+                          </a>
+                          <a href="{{route('students.edit', [$obj->id])}}"
+                             class="btn btn-warning btn-sm" role="button">
+                              Update
+                          </a>
+                          <a href="{{route('students.destroy', [$obj->id])}}"
+                             class="btn btn-danger btn-sm" role="button"
+                             onclick="return doDelete({!! $obj->id !!})">
+                              Delete
+                          </a>
+                        </div>
+                    </td>
+                </tr>
+              @endforeach
               </tbody>
             </table>
+            <div>
+                {!! $model->render() !!}
+            </div>
         </div>
-        <a href="{{url('[[route_path]]/create')}}" class="btn btn-primary" role="button">Add [[model_singular]]</a>
+        @else
+            No {{ ucfirst('[[model_plural]]') }} found.
+        @endif
+        <div>
+            <a href="{{url('[[route_path]]/create')}}" class="btn btn-primary" role="button">
+                Add [[model_singular]]
+            </a>
+        </div>
     </div>
 </div>
 
@@ -36,38 +70,25 @@
     <script type="text/javascript">
         var theGrid = null;
         $(document).ready(function(){
-            theGrid = $('#thegrid').DataTable({
+            table = $('#tbl-datatable').DataTable({
                 "processing": true,
-                "serverSide": true,
                 "ordering": true,
                 "responsive": true,
-                "ajax": "{{url('[[route_path]]/grid')}}",
-                "columnDefs": [
-                    {
-                        "render": function ( data, type, row ) {
-                            return '<a href="{{ url('/[[route_path]]') }}/'+row[0]+'">'+data+'</a>';
-                        },
-                        "targets": 1
-                    },
-                    {
-                        "render": function ( data, type, row ) {
-                            return '<a href="{{ url('/[[route_path]]') }}/'+row[0]+'/edit" class="btn btn-default">Update</a>';
-                        },
-                        "targets": [[num_columns]]
-                    },
-                    {
-                        "render": function ( data, type, row ) {
-                            return '<a href="#" onclick="return doDelete('+row[0]+')" class="btn btn-danger">Delete</a>';
-                        },
-                        "targets": [[num_columns]]+1
-                    },
-                ]
+                "paging": false
             });
         });
+
         function doDelete(id) {
-            if(confirm('You really want to delete this record?')) {
-               $.ajax({ url: '{{ url('/[[route_path]]') }}/' + id, type: 'DELETE'}).success(function() {
-                theGrid.ajax.reload();
+            if(confirm('Do you really want to delete this record?')) {
+               $.ajax({
+                   url: '{{ url('/[[route_path]]') }}/' + id,
+                   type: 'DELETE',
+                   success: function() {
+                       window.location.reload();
+                   },
+                   error: function() {
+                       alert('Woops! Something went wrong. Internal error.');
+                   }
                });
             }
             return false;
