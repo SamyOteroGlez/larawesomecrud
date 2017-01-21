@@ -13,7 +13,7 @@ class CrudGeneratorService
     public $tableName = '';
     public $prefix = '';
     public $force = false;
-    public $formRequest = false;
+    public $formRequest = 'Request';
     public $layout = '';
     public $existingModel = '';
     public $controllerName = '';
@@ -43,6 +43,7 @@ class CrudGeneratorService
             'prefix' => $this->prefix,
             'custom_master' => $this->layout ?: 'crudgenerator::layouts.master',
             'controller_name' => $this->controllerName,
+            'formrequest' => $this->formRequest,
             'view_folder' => $this->viewFolderName,
             'route_path' => $this->viewFolderName,
             'appns' => $this->appNamespace,
@@ -60,11 +61,6 @@ class CrudGeneratorService
 
         $columns = $this->createModel($modelname, $this->prefix, $this->tableName);
 
-        if($this->formRequest) {
-            Artisan::call('make:request', ['name' => $modelname . 'FormRequest']);
-            $this->output->info('FormRequest Name: ' . $modelname . 'FormRequest');
-        }
-        
         $options['columns'] = $columns;
         $options['first_column_nonid'] = count($columns) > 1 ? $columns[1]['name'] : '';
         $options['num_columns'] = count($columns);
@@ -78,6 +74,16 @@ class CrudGeneratorService
         $filegenerator = new \CrudGenerator\CrudGeneratorFileCreator();
         $filegenerator->options = $options;
         $filegenerator->output = $this->output;
+
+        if('Request' !== $this->formRequest) {
+            $options['formrequest'] = $modelname . 'FormRequest';
+
+            $filegenerator->templateName = 'formrequest';
+            $filegenerator->path = app_path().'/Http/Requests/'. $modelname . 'FormRequest.php';
+            $filegenerator->Generate();
+
+            $this->output->info('FormRequest Name: ' . $modelname . 'FormRequest');
+        }
 
         $filegenerator->templateName = 'controller';
         $filegenerator->path = app_path().'/Http/Controllers/'.$this->controllerName.'Controller.php';
