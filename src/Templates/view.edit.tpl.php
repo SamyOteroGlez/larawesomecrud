@@ -4,6 +4,24 @@
 
 <h2 class="page-header">[[model_uc]]</h2>
 
+<div class="btn-group" role="group">
+    <a href="{{url('[[route_path]]/')}}" class="btn btn-primary btn-sm" role="button">
+        <i class="glyphicon glyphicon-th-list"></i>
+        List of {{ ucfirst('[[model_plural]]') }}
+    </a>
+    <a href="{{url('[[route_path]]/edit')}}" class="btn btn-primary btn-sm" role="button">
+        <i class="glyphicon glyphicon-plus"></i>
+        Create {{ ucfirst('[[model_uc]]') }}
+    </a>
+    <a href="{{route('[[route_path]].destroy', [$model->id])}}" class="btn btn-danger btn-sm" role="button"
+       onclick="return doDelete({!! $model->id !!})">
+        <i class="glyphicon glyphicon-remove"></i>
+        Delete {{ ucfirst('[[model_uc]]') }}
+    </a>
+</div>
+<div class="clearfix"><div/>
+<br/>
+
 <div class="panel panel-default">
     <div class="panel-heading">
         Update [[model_uc]]
@@ -22,11 +40,9 @@
         <div class="form-group">
             <div class="col-sm-offset-3 col-sm-6">
                 <button type="submit" class="btn btn-success">
-                    <i class="fa fa-plus"></i> Update
+                    <i class="glyphicon glyphicon-ok"></i>
+                    Update
                 </button>
-                <a class="btn btn-default" href="{{ url('/[[route_path]]') }}">
-                    <i class="glyphicon glyphicon-chevron-left"></i> Back
-                </a>
             </div>
         </div>
 
@@ -34,5 +50,27 @@
 
     </div>
 </div>
+
+@endsection
+
+@section('scripts')
+
+<script type="text/javascript">
+    function doDelete(id) {
+        if(confirm('Do you really want to delete this record?')) {
+            $.ajax({
+                url: '{{ url('/[[route_path]]') }}/' + id,
+                type: 'DELETE',
+                success: function() {
+                    window.location.reload();
+                },
+                error: function() {
+                    alert('Woops! Something went wrong. Internal error.');
+                }
+            });
+        }
+        return false;
+    }
+</script>
 
 @endsection

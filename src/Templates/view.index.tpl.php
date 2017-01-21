@@ -29,17 +29,20 @@
                     [[endforeach]]
                     <td>
                         <div class="btn-group" role="group">
-                          <a href="{{route('students.show', [$obj->id])}}"
+                          <a href="{{route('[[route_path]].show', [$obj->id])}}"
                              class="btn btn-info btn-sm" role="button">
+                              <i class="glyphicon glyphicon-zoom-in"></i>
                               Details
                           </a>
-                          <a href="{{route('students.edit', [$obj->id])}}"
+                          <a href="{{route('[[route_path]].edit', [$obj->id])}}"
                              class="btn btn-warning btn-sm" role="button">
+                              <i class="glyphicon glyphicon-pencil"></i>
                               Update
                           </a>
-                          <a href="{{route('students.destroy', [$obj->id])}}"
+                          <a href="{{route('[[route_path]].destroy', [$obj->id])}}"
                              class="btn btn-danger btn-sm" role="button"
                              onclick="return doDelete({!! $obj->id !!})">
+                              <i class="glyphicon glyphicon-remove"></i>
                               Delete
                           </a>
                         </div>
@@ -55,9 +58,11 @@
         @else
             No {{ ucfirst('[[model_plural]]') }} found.
         @endif
+        <br/>
         <div>
-            <a href="{{url('[[route_path]]/create')}}" class="btn btn-primary" role="button">
-                Add [[model_singular]]
+            <a href="{{url('[[route_path]]/create')}}" class="btn btn-primary btn-sm" role="button">
+                <i class="glyphicon glyphicon-plus"></i>
+                Create {{ ucfirst('[[model_uc]]') }}
             </a>
         </div>
     </div>
