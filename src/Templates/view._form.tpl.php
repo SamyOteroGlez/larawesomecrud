@@ -24,6 +24,9 @@
         [[if:i.type=='unknown']]
             {!! Form::text('[[i.name]]', null, ['id' => '[[i.name]]', 'class' => 'form-control']) !!}
         [[endif]]
+            @if($errors->has('[[i.name]]'))
+            {!! Form::label('error-[[i.name]]', $errors->first('[[i.name]]'), ['class' => 'control-label has-error']) !!}
+            @endif
         </div>
     </div>
 [[endforeach]]
