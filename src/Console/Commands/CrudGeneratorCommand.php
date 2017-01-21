@@ -62,7 +62,7 @@ class CrudGeneratorCommand extends Command
     {
         $this->modelname = strtolower($this->argument('model-name'));
         $this->prefix = \Config::get('database.connections.mysql.prefix');
-        $this->custom_table_name = $this->option('table-name');
+        //$this->custom_table_name = $this->option('table-name');
         $this->custom_controller = $this->option('custom-controller');
         $this->singular = $this->option('singular');
         $this->formrequest = false;
@@ -127,23 +127,23 @@ class CrudGeneratorCommand extends Command
             if($this->singular) {
                 $tocreate['tablename'] = strtolower($this->modelname);
             }
-            else if($this->custom_table_name) {
-                $tocreate['tablename'] = $this->custom_table_name;
-            }
+//            else if($this->custom_table_name) {
+//                $tocreate['tablename'] = $this->custom_table_name;
+//            }
             $tocreate = [$tocreate];
-        }
-
-        if('formrequest' == $this->option('formrequest')) {
-            $this->formrequest = true;
         }
 
         foreach ($tocreate as $c) {
             $generator = new \CrudGenerator\CrudGeneratorService();
             $generator->output = $this;
-
             $generator->appNamespace = Container::getInstance()->getNamespace();
             $generator->modelName = ucfirst($c['modelname']);
             $generator->tableName = $c['tablename'];
+
+            if('formrequest' == $this->option('formrequest')) {
+                $this->formrequest =  $generator->modelName . 'FormRequest';
+            }
+
             $generator->formRequest = $this->formrequest;
             $generator->prefix = $this->prefix;
             $generator->force = $this->option('force');
