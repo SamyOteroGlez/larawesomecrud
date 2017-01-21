@@ -107,7 +107,7 @@ class CrudGeneratorService
         $addroute = '//Start routes for ' . $this->viewFolderName;
         $this->appendToEndOfFile(base_path().'/app/Http/routes.php', "\n".$addroute, 0, true);
 
-        $addroute = 'Route::get(\'/'.$this->viewFolderName.'/grid\', \''.$this->controllerName.'Controller@grid\');';
+        $addroute = 'Route::get(\'/'.$this->viewFolderName.'/grid\', [\'as\' => \''.$this->viewFolderName.'.grid\', \'uses\' => \''.$this->controllerName.'Controller@grid\']);';
         $this->appendToEndOfFile(base_path().'/app/Http/routes.php', "\n".$addroute, 0, true);
         $this->output->info('Adding Route: '.$addroute );
 
