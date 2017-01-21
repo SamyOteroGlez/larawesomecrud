@@ -13,6 +13,7 @@ class CrudGeneratorService
     public $tableName = '';
     public $prefix = '';
     public $force = false;
+    public $formRequest = false;
     public $layout = '';
     public $existingModel = '';
     public $controllerName = '';
@@ -30,7 +31,6 @@ class CrudGeneratorService
         $modelname = ucfirst(str_singular($this->modelName));
         $this->viewFolderName = strtolower($this->controllerName);
 
-        $this->output->info('');
         $this->output->info('Creating catalogue for table: '.($this->tableName ?: strtolower(str_plural($this->modelName))));
         $this->output->info('Model Name: '.$modelname);
 
@@ -54,6 +54,11 @@ class CrudGeneratorService
             if(file_exists(base_path().'/resources/views/'.$this->viewFolderName.'/add.blade.php')) { $this->output->info('Add view already exists, use --force to overwrite'); return; }
             if(file_exists(base_path().'/resources/views/'.$this->viewFolderName.'/show.blade.php')) { $this->output->info('Show view already exists, use --force to overwrite'); return; }
             if(file_exists(base_path().'/resources/views/'.$this->viewFolderName.'/index.blade.php')) { $this->output->info('Index view already exists, use --force to overwrite');  return; }
+        }
+
+        if($this->formRequest) {
+            Artisan::call('make:request', ['name' => $modelname . 'FormRequest']);
+            $this->output->info('FormRequest Name: ' . $modelname . 'FormRequest');
         }
 
         $this->deletePreviousFiles($options['tablename']);
@@ -112,6 +117,9 @@ class CrudGeneratorService
 
         $addroute = '//End routes for ' . $this->viewFolderName;
         $this->appendToEndOfFile(base_path().'/app/Http/routes.php', "\n".$addroute."\n", 0, true);
+
+        $this->output->info('');
+        $this->output->info('*********************************************************************');
     }
 
     protected function getColumns($tablename) {
@@ -220,7 +228,6 @@ class CrudGeneratorService
     }
 
     protected function createModel($modelname, $prefix, $table_name) {
-
         Artisan::call('make:model', ['name' => $modelname]);
 
         $this->appendUseDb(app_path().'/'.$modelname.'.php');
@@ -359,7 +366,7 @@ class CrudGeneratorService
 
             if(file_exists($path)) { 
                 unlink($path);    
-                $this->output->info('Deleted: '.$path);
+                //$this->output->info('Deleted: '.$path);
             }   
         }
     }
