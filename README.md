@@ -1,47 +1,49 @@
 # larawesomecrud
 
-CRUD generator for Laravel. Generates models, controller and views based on the database tables. This project is a fork of kEpEx/laravel-crud-generator from Alfredo Aguirre (alfrednx@gmail.com).
+![laravel](https://cloud.githubusercontent.com/assets/8644532/22171498/74ab9b60-df5d-11e6-8e20-4617a38a8fec.png)
 
+###A CRUD generator for Laravel. Generates models, controller and views based on the database tables. 
+This project is a fork of [kEpEx/laravel-crud-generator] (https://github.com/kEpEx/laravel-crud-generator) from Alfredo Aguirre (alfrednx@gmail.com).
 
-###Installing
+###Install
 
 	to do
 
 
 Add to config/app.php the following line to the 'providers' array:
 
-    CrudGenerator\CrudGeneratorServiceProvider::class,
+    	CrudGenerator\CrudGeneratorServiceProvider::class,
 
 
 ###Usage
 
-Use the desired model name as the input 
+Use a table name, a list of table names as the input or just generate all the database.
 
-
-Generate CRUD for one table
-
-	php artisan make:crud table_1
-
-Generate CRUD for all database
+CRUD for all database
 
 	php artisan make:crud all
 	php artisan make:crud --all
 	php artisan make:crud -a
 	php artisan make:crud
+
+CRUD for one table
+
+	php artisan make:crud table_1
 	
-Generate CRUD for a list of tables
+CRUD for a list of tables
 
 	php artisan make:crud table_1,table_2,table_3 --only
 	php artisan make:crud table_1,table_2,table_3 -o
 
-Generate CRUD for all except for the lables in a given list
+CRUD for all except for the tables in a given list
 
 	php artisan make:crud table_1,table_2,table_3 --all-but
 	php artisan make:crud table_1,table_2,table_3 -b
 
-Generate CRUD for all database with a custom layout
+Generate Form Requests
 
-	php artisan make:crud all --master-layout=layouts.master 
+	php artisan make:crud table_1 --formrequest
+	php artisan make:crud table_1 -r
 
 Use singular names
 
@@ -54,13 +56,19 @@ For more options
 
 ###Custom Templates
 
-You can customize your own templates
+Use a custom layout
 
-Run this command:
+	php artisan make:crud all --master-layout=layouts.master 
 
-    php artisan vendor:publish
+Customize your own templates
 
-and you will have now in resources/templates/ the files you need to modify
+    	php artisan vendor:publish
 
-If you want to go back to the default, just delete them.
+###More Resources
+ToDo
+
+###License
+**[MIT License](./LICENSE)**
+[SamyOteroGlez](http://github.com/SamyOteroGlez) & contributors
+
 
