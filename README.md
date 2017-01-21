@@ -1,18 +1,19 @@
-# larawesomecrud
+### larawesomecrud
 
 ![laravel](https://cloud.githubusercontent.com/assets/8644532/22171498/74ab9b60-df5d-11e6-8e20-4617a38a8fec.png)
 
 ###A CRUD generator for Laravel. Generates models, controller and views based on the database tables. 
-This project is a fork of [kEpEx/laravel-crud-generator] (https://github.com/kEpEx/laravel-crud-generator) from Alfredo Aguirre (alfrednx@gmail.com).
+This project is based on [kEpEx/laravel-crud-generator] (https://github.com/kEpEx/laravel-crud-generator) from
+Alfredo Aguirre (alfrednx@gmail.com).
 
 ###Install
 
-	to do
+	composer require samyoteroglez/larawesomecrud
 
 
-Add to config/app.php the following line to the 'providers' array:
+Next, add your new provider to the providers array of config/app.php:
 
-    	CrudGenerator\CrudGeneratorServiceProvider::class,
+    CrudGenerator\CrudGeneratorServiceProvider::class,
 
 
 ###Usage
@@ -62,13 +63,12 @@ Use a custom layout
 
 Customize your own templates
 
-    	php artisan vendor:publish
+    php artisan vendor:publish
 
-###More Resources
-ToDo
+###Contact
+GitHub: [SamyOteroGlez](http://github.com/SamyOteroGlez)
+Twitter: [@SamyOteroGlez](@SamyOteroGlez)
 
 ###License
 **[MIT License](./LICENSE)**
 [SamyOteroGlez](http://github.com/SamyOteroGlez) & contributors
-
-
