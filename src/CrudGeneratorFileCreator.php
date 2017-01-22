@@ -2,10 +2,9 @@
 
 namespace CrudGenerator;
 
-
-use Illuminate\Console\Command;
 use DB;
 use Artisan;
+use Illuminate\Console\Command;
 
 class CrudGeneratorFileCreator 
 {
@@ -20,13 +19,15 @@ class CrudGeneratorFileCreator
 
     }
   
-    public function Generate() {
+    public function Generate()
+    {
         $c = $this->renderWithData($this->customTemplateOfDefault($this->templateName), $this->options);
         file_put_contents($this->path, $c);
         $this->output->info('Created Controller: '.$this->path);
     }
 
-    protected function renderWithData($template_path, $data) {
+    protected function renderWithData($template_path, $data)
+    {
         $template = file_get_contents($template_path);
         $template = $this->renderForeachs($template, $data);
         $template = $this->renderIFs($template, $data);
@@ -35,7 +36,8 @@ class CrudGeneratorFileCreator
         return $template;
     }
 
-    protected function renderVariables($template, $data) {
+    protected function renderVariables($template, $data)
+    {
         $callback = function ($matches) use($data) {
 
             if(array_key_exists($matches[1], $data)) {
@@ -49,7 +51,8 @@ class CrudGeneratorFileCreator
         return $template;
     }
 
-    protected function renderForeachs($template, $data) {
+    protected function renderForeachs($template, $data)
+    {
         $callback = function ($matches) use($data) {
             $rep = $matches[0];
             $rep = preg_replace('/\[\[\s*foreach:\s*(.+?)\s*\]\](\r?\n)?/s', '', $rep);
@@ -86,8 +89,8 @@ class CrudGeneratorFileCreator
         return $template;
     }
 
-    protected function getValFromExpression($exp, $data) {
-
+    protected function getValFromExpression($exp, $data)
+    {
         if(str_contains($exp, "'")) {
             return trim($exp,"'");    
         }
@@ -100,7 +103,8 @@ class CrudGeneratorFileCreator
         }
     }
 
-    protected function renderIFs($template, $data) {
+    protected function renderIFs($template, $data)
+    {
         $callback = function ($matches) use($data) {
             $rep = $matches[0];
             $rep = preg_replace('/\[\[\s*if:\s*(.+?)\s*([!=]=)\s*(.+?)\s*\]\](\r?\n)?/s', '', $rep);
@@ -119,7 +123,8 @@ class CrudGeneratorFileCreator
         return $template;
     }
 
-    protected function customTemplateOfDefault($template_name) {
+    protected function customTemplateOfDefault($template_name)
+    {
         $trypath = base_path().'/resources/templates/'.$template_name.'.tpl.php';
 
         if(file_exists($trypath)) return $trypath;

@@ -2,10 +2,9 @@
 
 namespace CrudGenerator;
 
-
-use Illuminate\Console\Command;
 use DB;
 use Artisan;
+use Illuminate\Console\Command;
 
 class CrudGeneratorService 
 {
@@ -128,7 +127,8 @@ class CrudGeneratorService
         $this->output->info('*********************************************************************');
     }
 
-    protected function getColumns($tablename) {
+    protected function getColumns($tablename)
+    {
         $dbType = DB::getDriverName();
 
         switch ($dbType) {
@@ -176,7 +176,8 @@ class CrudGeneratorService
         return $ret;
     }
 
-    protected function getRelatedObjDataFK($tablename, $fkName) {
+    protected function getRelatedObjDataFK($tablename, $fkName)
+    {
         $dbname = DB::connection()->getDatabaseName();
 
         $result = DB::table('INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS')
@@ -190,7 +191,8 @@ class CrudGeneratorService
         return reset($result);
     }
 
-    protected function getRelatedObjData($tablename) {
+    protected function getRelatedObjData($tablename)
+    {
         $dbname = DB::connection()->getDatabaseName();
 
         $result = DB::table('INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS')
@@ -203,7 +205,8 @@ class CrudGeneratorService
         return $result;
     }
 
-    protected function getReferencedObjData($tablename) {
+    protected function getReferencedObjData($tablename)
+    {
         $dbname = DB::connection()->getDatabaseName();
 
         $result = DB::table('INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS')
@@ -216,7 +219,8 @@ class CrudGeneratorService
         return $result;
     }
 
-    protected function getRelatedTableName($obj) {
+    protected function getRelatedTableName($obj)
+    {
         $patterns = ['/' . $obj->TABLE_NAME . '_/', '/_foreign/'];
         $replacements = ['', ''];
         $fkTableName = preg_replace($patterns, $replacements, $obj->CONSTRAINT_NAME);
@@ -224,7 +228,8 @@ class CrudGeneratorService
         return $fkTableName;
     }
 
-    protected function getTypeFromDBType($dbtype) {
+    protected function getTypeFromDBType($dbtype)
+    {
         if(str_contains($dbtype, 'varchar')) { return 'text'; }
         if(str_contains($dbtype, 'int') || str_contains($dbtype, 'float')) { return 'number'; }
         if(str_contains($dbtype, 'date')) { return 'date'; }
@@ -233,7 +238,8 @@ class CrudGeneratorService
         return 'unknown';
     }
 
-    protected function createModel($modelname, $prefix, $table_name) {
+    protected function createModel($modelname, $prefix, $table_name)
+    {
         Artisan::call('make:model', ['name' => $modelname]);
 
         $this->appendUseDb(app_path().'/'.$modelname.'.php');
@@ -290,7 +296,8 @@ class CrudGeneratorService
         return $columns;
     }
 
-    protected function appendAttributes($modelname, $table_name, $columName) {
+    protected function appendAttributes($modelname, $table_name, $columName)
+    {
         $dataRelated = $this->getRelatedObjData($table_name);
         $columName = $columName[1]['name'];
 
@@ -306,7 +313,8 @@ class CrudGeneratorService
         }
     }
 
-    protected function addAppends($modelname, $table_name) {
+    protected function addAppends($modelname, $table_name)
+    {
         $appends = "\n";
         $dataRelated = $this->getRelatedObjData($table_name);
 
@@ -323,7 +331,8 @@ class CrudGeneratorService
         }
     }
 
-    protected function addFillable($modelname, $fields) {
+    protected function addFillable($modelname, $fields)
+    {
         $fillables = "\n";
 
         foreach($fields as $field) {
@@ -348,17 +357,20 @@ class CrudGeneratorService
         $this->appendToEndOfFile(app_path().'/'.$modelname.'.php', "    protected \$fillable = [$fillables                          ];\n\n}", 2, true);
     }
 
-    protected function appendBelongTo($modelname, $referencedName) {
+    protected function appendBelongTo($modelname, $referencedName)
+    {
         $referencedClassName = ucwords($referencedName);
         $this->appendToEndOfFile(app_path().'/'.$modelname.'.php', "\n    public function $referencedName()\n    {\n        return \$this->belongsTo('App\\$referencedClassName');\n    }\n", 0, true);
     }
 
-    protected function appendHasMany($modelname, $relatedName) {
+    protected function appendHasMany($modelname, $relatedName)
+    {
         $relatedClassName = ucwords($relatedName);
         $this->appendToEndOfFile(app_path().'/'.$modelname.'.php', "\n    public function $relatedName()\n    {\n        return \$this->hasMany('App\\$relatedClassName');\n    }\n", 0, true);
     }
 
-    protected function deletePreviousFiles($tablename) {
+    protected function deletePreviousFiles($tablename)
+    {
         $todelete = [
                 app_path().'/Http/Controllers/'.ucfirst($tablename).'Controller.php',
                 base_path().'/resources/views/'.str_plural($tablename).'/index.blade.php',
@@ -377,7 +389,8 @@ class CrudGeneratorService
         }
     }
 
-    protected function appendToEndOfFile($path, $text, $remove_last_chars = 0, $dont_add_if_exist = false) {
+    protected function appendToEndOfFile($path, $text, $remove_last_chars = 0, $dont_add_if_exist = false)
+    {
         $content = file_get_contents($path);
 
         if(!str_contains($content, $text) || !$dont_add_if_exist) {
@@ -386,7 +399,8 @@ class CrudGeneratorService
         }
     }
 
-    protected function appendUseDb($path) {
+    protected function appendUseDb($path)
+    {
         $lines = file($path);
         $lines[2] .= "\n";
         $lines[3] = "use DB;\n";

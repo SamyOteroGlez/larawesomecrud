@@ -2,11 +2,11 @@
 
 namespace CrudGenerator\Console\Commands;
 
-use Illuminate\Container\Container;
-use Illuminate\Console\Command;
 use DB;
 use Artisan;
+use Illuminate\Console\Command;
 use Psy\Exception\ErrorException;
+use Illuminate\Container\Container;
 
 class CrudGeneratorCommand extends Command
 {
@@ -47,6 +47,9 @@ class CrudGeneratorCommand extends Command
     {
         parent::__construct();
 
+        /*
+         * List of tables to ignore when generates the crud
+         */
         $this->blacklist = [
             'migrations',
             'password_resets',
@@ -69,8 +72,7 @@ class CrudGeneratorCommand extends Command
         $this->info('');
 
         if('black-list' == $this->option('black-list')) {
-            $this->comment('This tables are excluded: ');
-            $this->table([], array ($this->blacklist));
+            $this->commandBlackList();
 
             return false;
         }
@@ -85,52 +87,17 @@ class CrudGeneratorCommand extends Command
         }
 
         if('all' == $this->option('all') || 'all' == $this->modelname) {
-            $this->info("Generate all models");
-            $this->info("List of tables: ".implode($tables, ","));
-
-            $tocreate = $this->generateModelList($tables);
-
-            // Remove options not applicable for multiples tables
-            $this->resetValuesToNull();
+            $tocreate = $this->commandAll($tables);
         }
         elseif('all-but' == $this->option('all-but')) {
-            $allBut = explode(",", $this->modelname);
-            $this->info("Generate all models but this: ".implode($allBut, ","));
-            $this->info("List of tables: ".implode($tables, ","));
-
-            $tocreate = $this->generateModelList($tables, $allBut);
-
-            // Remove options not applicable for multiples tables
-            $this->resetValuesToNull();
+            $tocreate = $this->commandAllBut($tables);
         }
         elseif('only' == $this->option('only')) {
-           $only = explode(",", $this->modelname);
-           $this->info("Generate only this models: ".implode($only, ","));
-           $this->info("List of tables: ".implode($tables, ","));
-
-           $tocreate = $this->generateModelList($only);
-
-            // Remove options not applicable for multiples tables
-            $this->resetValuesToNull();
-        }
-        elseif('black-list' == $this->option('black-list')) {
-            $this->comment('This tables are excluded: ');
-            $this->table(['Table Name'], $this->blacklist);
+           $tocreate = $this->commandOnly($tables);
         }
         else {
-            $this->info("Generate the model: ".$this->modelname);
-            $tocreate = [
-                'modelname' => $this->modelname,
-                'tablename' => '',
-            ];
-
-            if($this->singular) {
-                $tocreate['tablename'] = strtolower($this->modelname);
-            }
-//            else if($this->custom_table_name) {
-//                $tocreate['tablename'] = $this->custom_table_name;
-//            }
-            $tocreate = [$tocreate];
+            $modelName = $this->commandModelName();
+            $tocreate = [$modelName];
         }
 
         foreach ($tocreate as $c) {
@@ -154,7 +121,81 @@ class CrudGeneratorCommand extends Command
         }
     }
 
-    private function generateModelList($tables, $blacklist = null) {
+    /*
+     * Generate --black-list command
+     */
+    private function commandBlackList()
+    {
+        $this->comment('This tables are excluded: ');
+        $this->table([], array ($this->blacklist));
+    }
+
+    /*
+     * Generate --all command
+     */
+    private function commandAll($tables)
+    {
+        $this->info("Generate all models");
+        $this->info("List of tables: " . implode($tables, ","));
+        $tocreate = $this->generateModelList($tables);
+        $this->resetValuesToNull();
+
+        return $tocreate;
+    }
+
+    /*
+     * Generate --all-but command
+     */
+    private function commandAllBut($tables)
+    {
+        $allBut = explode(",", $this->modelname);
+        $this->info("Generate all models but this: " . implode($allBut, ","));
+        $this->info("List of tables: ".implode($tables, ","));
+        $tocreate = $this->generateModelList($tables, $allBut);
+        $this->resetValuesToNull();
+
+        return $tocreate;
+    }
+
+    /*
+     * Generate --only command
+     */
+    private function commandOnly($tables)
+    {
+        $only = explode(",", $this->modelname);
+        $this->info("Generate only this models: " . implode($only, ","));
+        $this->info("List of tables: ".implode($tables, ","));
+        $tocreate = $this->generateModelList($only);
+        $this->resetValuesToNull();
+
+        return $tocreate;
+    }
+
+    /*
+     * Generate model name command
+     */
+    private function commandModelName()
+    {
+        $this->info("Generate the model: " . $this->modelname);
+        $tocreate = [
+            'modelname' => $this->modelname,
+            'tablename' => '',
+        ];
+
+        if($this->singular) {
+            $tocreate['tablename'] = strtolower($this->modelname);
+        }
+//            else if($this->custom_table_name) {
+//                $tocreate['tablename'] = $this->custom_table_name;
+//            }
+        return $tocreate;
+    }
+
+    /*
+     * Generate the model list
+     */
+    private function generateModelList($tables, $blacklist = null)
+    {
         $tocreate = [];
 
         foreach ($tables as $t) {
@@ -176,8 +217,11 @@ class CrudGeneratorCommand extends Command
         return $tocreate;
     }
 
-    private function excludeToGenerate($name, $blacklist = null) {
-
+    /*
+     * Remove from the list of tables to generate the tables in the black list
+     */
+    private function excludeToGenerate($name, $blacklist = null)
+    {
         $ignore = $this->blacklist;
 
         if(!is_null($blacklist)) {
@@ -194,8 +238,11 @@ class CrudGeneratorCommand extends Command
         return false;
     }
 
-    private function resetValuesToNull() {
-        // Remove options not applicabe for multiples tables
+    /*
+     * Remove options not applicable for multiple tables
+     */
+    private function resetValuesToNull()
+    {
         $this->custom_table_name = null;
         $this->custom_controller = null;
         $this->singular = null;
