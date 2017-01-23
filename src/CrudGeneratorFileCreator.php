@@ -2,31 +2,45 @@
 
 namespace CrudGenerator;
 
-
-use Illuminate\Console\Command;
 use DB;
 use Artisan;
+use Illuminate\Console\Command;
 
 class CrudGeneratorFileCreator 
 {
-    public $templateName = '';
-    public $path = '';
-    public $options = [];
-    public $deletePrevious = false;
-    public $output = null;
- 
-    public function __construct()
-    {
+    private $options;
+    private $output;
+    private $templateName;
+    private $path;
+    private $deletePrevious;
 
+    /**
+     * New CrudGeneratorFileCreator instance.
+     *
+     * @param array $options
+     * @param null $output
+     * @param string $templateName
+     * @param string $path
+     * @param bool|false $deletePrevious
+     */
+    public function __construct($options = [], $output = null, $templateName = '', $path = '', $deletePrevious = false)
+    {
+        $this->options = $options;
+        $this->output = $output;
+        $this->templateName = $templateName;
+        $this->path = $path;
+        $this->deletePrevious = $deletePrevious;
     }
   
-    public function Generate() {
+    public function Generate()
+    {
         $c = $this->renderWithData($this->customTemplateOfDefault($this->templateName), $this->options);
         file_put_contents($this->path, $c);
         $this->output->info('Created Controller: '.$this->path);
     }
 
-    protected function renderWithData($template_path, $data) {
+    protected function renderWithData($template_path, $data)
+    {
         $template = file_get_contents($template_path);
         $template = $this->renderForeachs($template, $data);
         $template = $this->renderIFs($template, $data);
@@ -35,7 +49,8 @@ class CrudGeneratorFileCreator
         return $template;
     }
 
-    protected function renderVariables($template, $data) {
+    protected function renderVariables($template, $data)
+    {
         $callback = function ($matches) use($data) {
 
             if(array_key_exists($matches[1], $data)) {
@@ -49,7 +64,8 @@ class CrudGeneratorFileCreator
         return $template;
     }
 
-    protected function renderForeachs($template, $data) {
+    protected function renderForeachs($template, $data)
+    {
         $callback = function ($matches) use($data) {
             $rep = $matches[0];
             $rep = preg_replace('/\[\[\s*foreach:\s*(.+?)\s*\]\](\r?\n)?/s', '', $rep);
@@ -86,8 +102,8 @@ class CrudGeneratorFileCreator
         return $template;
     }
 
-    protected function getValFromExpression($exp, $data) {
-
+    protected function getValFromExpression($exp, $data)
+    {
         if(str_contains($exp, "'")) {
             return trim($exp,"'");    
         }
@@ -100,7 +116,8 @@ class CrudGeneratorFileCreator
         }
     }
 
-    protected function renderIFs($template, $data) {
+    protected function renderIFs($template, $data)
+    {
         $callback = function ($matches) use($data) {
             $rep = $matches[0];
             $rep = preg_replace('/\[\[\s*if:\s*(.+?)\s*([!=]=)\s*(.+?)\s*\]\](\r?\n)?/s', '', $rep);
@@ -119,11 +136,62 @@ class CrudGeneratorFileCreator
         return $template;
     }
 
-    protected function customTemplateOfDefault($template_name) {
+    protected function customTemplateOfDefault($template_name)
+    {
         $trypath = base_path().'/resources/templates/'.$template_name.'.tpl.php';
 
         if(file_exists($trypath)) return $trypath;
 
         return __DIR__.'/Templates/'.$template_name.'.tpl.php';
+    }
+
+    /**
+     * Set deletePrevious.
+     *
+     * @param $deletePrevious
+     */
+    public function setDeletePreviousAttribute($deletePrevious)
+    {
+        $this->deletePrevious = $deletePrevious;
+    }
+
+    /**
+     * Set path.
+     *
+     * @param $path
+     */
+    public function setPathAttribute($path)
+    {
+        $this->path = $path;
+    }
+
+    /**
+     * Set templateName.
+     *
+     * @param $templateName
+     */
+    public function setTemplateNameAttribute($templateName)
+    {
+        $this->templateName = $templateName;
+    }
+
+    /**
+     * Set output.
+     *
+     * @param $output
+     */
+    public function setOutputAttribute($output)
+    {
+        $this->output = $output;
+    }
+
+    /**
+     * Set options.
+     *
+     * @param $options
+     */
+    public function setOptionsAttribute($options)
+    {
+        $this->options = $options;
     }
 }
