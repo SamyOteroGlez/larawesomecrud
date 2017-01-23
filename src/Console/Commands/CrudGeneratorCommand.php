@@ -7,9 +7,17 @@ use Artisan;
 use Illuminate\Console\Command;
 use Psy\Exception\ErrorException;
 use Illuminate\Container\Container;
+use CrudGenerator\CrudGeneratorService as Generator;
 
 class CrudGeneratorCommand extends Command
 {
+    private $blacklist;
+    private $modelname;
+    private $prefix;
+    private $custom_table_name;
+    private $custom_controller;
+    private $singular;
+
     /**
      * The name and signature of the console command.
      *
@@ -36,8 +44,6 @@ class CrudGeneratorCommand extends Command
      */
     protected $description = 'Create fully functional CRUD code based on a mysql table instantly';
 
-    private $blacklist, $modelname, $prefix, $custom_table_name, $custom_controller, $singular;
-
     /**
      * Create a new command instance.
      *
@@ -47,8 +53,8 @@ class CrudGeneratorCommand extends Command
     {
         parent::__construct();
 
-        /*
-         * List of tables to ignore when generates the crud
+        /**
+         * List of tables to ignore when generates the crud.
          */
         $this->blacklist = [
             'migrations',
@@ -63,13 +69,14 @@ class CrudGeneratorCommand extends Command
      */
     public function handle()
     {
+        $this->showWelcomeMessage();
+
         $this->modelname = strtolower($this->argument('model-name'));
         $this->prefix = \Config::get('database.connections.mysql.prefix');
         //$this->custom_table_name = $this->option('table-name');
         $this->custom_controller = $this->option('custom-controller');
         $this->singular = $this->option('singular');
         $this->formrequest = false;
-        $this->info('');
 
         if('black-list' == $this->option('black-list')) {
             $this->commandBlackList();
@@ -100,29 +107,35 @@ class CrudGeneratorCommand extends Command
             $tocreate = [$modelName];
         }
 
-        foreach ($tocreate as $c) {
-            $generator = new \CrudGenerator\CrudGeneratorService();
-            $generator->output = $this;
-            $generator->appNamespace = Container::getInstance()->getNamespace();
-            $generator->modelName = ucfirst($c['modelname']);
-            $generator->tableName = $c['tablename'];
+        foreach ($tocreate as $param) {
+            $modelName = ucfirst($param['modelname']);
+            $controllerName = ucfirst(strtolower($this->custom_controller)) ?: str_plural($modelName);
 
             if('formrequest' == $this->option('formrequest')) {
-                $this->formrequest =  $generator->modelName . 'FormRequest';
+                $this->formrequest =  $modelName . 'FormRequest';
             }
 
-            $generator->formRequest = $this->formrequest;
-            $generator->prefix = $this->prefix;
-            $generator->force = $this->option('force');
-            $generator->layout = $this->option('master-layout');
-            $generator->controllerName = ucfirst(strtolower($this->custom_controller)) ?: str_plural($generator->modelName);
+            $generator = new Generator(
+                $this,
+                Container::getInstance()->getNamespace(),
+                $modelName,
+                $param['tablename'],
+                $this->formrequest,
+                $this->prefix,
+                $this->option('force'),
+                $this->option('master-layout'),
+                $controllerName
+            );
 
             $generator->Generate();
         }
+
+        $this->showByeByeMessage();
     }
 
-    /*
-     * Generate --black-list command
+    /**
+     * Command --black-list.
+     * Show the black list.
      */
     private function commandBlackList()
     {
@@ -130,8 +143,13 @@ class CrudGeneratorCommand extends Command
         $this->table([], array ($this->blacklist));
     }
 
-    /*
-     * Generate --all command
+    /**
+     * Command --all.
+     * Set the list of models to generate. Return an array with the table names to generate.
+     *
+     * @param $tables
+     *
+     * @return array
      */
     private function commandAll($tables)
     {
@@ -143,8 +161,12 @@ class CrudGeneratorCommand extends Command
         return $tocreate;
     }
 
-    /*
-     * Generate --all-but command
+    /**
+     * Command --all-but.
+     * Set the list of models to generate. Return an array with the table names to generate.
+     *
+     * @param $tables
+     * @return array
      */
     private function commandAllBut($tables)
     {
@@ -157,8 +179,12 @@ class CrudGeneratorCommand extends Command
         return $tocreate;
     }
 
-    /*
-     * Generate --only command
+    /**
+     * Command --only.
+     * Set the list of models to generate. Return an array with the model names.
+     *
+     * @param $tables
+     * @return array
      */
     private function commandOnly($tables)
     {
@@ -171,8 +197,11 @@ class CrudGeneratorCommand extends Command
         return $tocreate;
     }
 
-    /*
-     * Generate model name command
+    /**
+     * Command model name.
+     * Set the model name to generate. Return an array with the model name and the table name.
+     *
+     * @return array
      */
     private function commandModelName()
     {
@@ -191,8 +220,13 @@ class CrudGeneratorCommand extends Command
         return $tocreate;
     }
 
-    /*
-     * Generate the model list
+    /**
+     * Generate the model list. Return an array with the list of models to generate.
+     *
+     * @param $tables
+     * @param null $blacklist
+     *
+     * @return array
      */
     private function generateModelList($tables, $blacklist = null)
     {
@@ -201,7 +235,7 @@ class CrudGeneratorCommand extends Command
         foreach ($tables as $t) {
 
             if(!$this->excludeToGenerate($t, $blacklist)) {
-                // Ignore tables with different prefix
+
                 if($this->prefix == '' || str_contains($t, $this->prefix)) {
                     $t = strtolower(substr($t, strlen($this->prefix)));
                     $toadd = ['modelname'=> str_singular($t), 'tablename'=>''];
@@ -217,8 +251,14 @@ class CrudGeneratorCommand extends Command
         return $tocreate;
     }
 
-    /*
-     * Remove from the list of tables to generate the tables in the black list
+    /**
+     * Remove from the list of tables to generate the tables in the black list. Return true if a table name is in the
+     * blacklist, false if don't so it can be generated.
+     *
+     * @param $name
+     * @param null $blacklist
+     *
+     * @return bool
      */
     private function excludeToGenerate($name, $blacklist = null)
     {
@@ -238,14 +278,101 @@ class CrudGeneratorCommand extends Command
         return false;
     }
 
-    /*
-     * Remove options not applicable for multiple tables
+    /**
+     * Remove options not applicable for multiple tables.
      */
     private function resetValuesToNull()
     {
         $this->custom_table_name = null;
         $this->custom_controller = null;
         $this->singular = null;
+    }
+
+    protected function showWelcomeMessage()
+    {
+        $this->info('');
+        $this->info('****************************************************');
+        $this->info('* Lets generate because... Everything is awesome!  *');
+        $this->info('****************************************************');
+        $this->info('');
+    }
+
+    /**
+     * Show bye message.
+     */
+    protected function showByeByeMessage()
+    {
+        $this->info('');
+        $this->info('****************************************************');
+        $this->info('* Thanks for using larawesomecrud.                 *');
+        $this->info('*                                                  *');
+        $this->info('* And remember...                                  *');
+        $this->info('* Everything is AWESOME!                           *');
+        $this->info('*                                                  *');
+        $this->info('* o(0o;)o                                          *');
+        $this->info('*                                                  *');
+        $this->info('****************************************************');
+        $this->info('');
+    }
+
+    /**
+     * Set blacklist.
+     *
+     * @param $blacklist
+     */
+    public function setBlacListAttribute($blacklist)
+    {
+        $this->blacklist = $blacklist;
+    }
+
+    /**
+     * Set modelname.
+     *
+     * @param $modelname
+     */
+    public function setModelNameAttribute($modelname)
+    {
+        $this->modelname = $modelname;
+    }
+
+    /**
+     * Set prefix.
+     *
+     * @param $prefix
+     */
+    public function setPrefixAttribute($prefix)
+    {
+        $this->prefix = $prefix;
+    }
+
+    /**
+     * Set custom_table_name.
+     *
+     * @param $custom_table_name
+     */
+    public function setCustomTableNameAttribute($custom_table_name)
+    {
+        $this->custom_table_name = $custom_table_name;
+    }
+
+    /**
+     * Set custom_controller.
+     *
+     * @param $custom_controller
+     */
+    public function setCustomControllerAttribute($custom_controller)
+    {
+        $this->custom_controller = $custom_controller;
+    }
+
+    /**
+     * Set singular.
+     *
+     * @param $singular
+     */
+    public function setSingularAttribute($singular)
+    {
+        $this->singular = $singular;
     }
 }
 

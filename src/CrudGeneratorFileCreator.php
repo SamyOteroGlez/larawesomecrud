@@ -8,15 +8,28 @@ use Illuminate\Console\Command;
 
 class CrudGeneratorFileCreator 
 {
-    public $templateName = '';
-    public $path = '';
-    public $options = [];
-    public $deletePrevious = false;
-    public $output = null;
- 
-    public function __construct()
-    {
+    private $options;
+    private $output;
+    private $templateName;
+    private $path;
+    private $deletePrevious;
 
+    /**
+     * New CrudGeneratorFileCreator instance.
+     *
+     * @param array $options
+     * @param null $output
+     * @param string $templateName
+     * @param string $path
+     * @param bool|false $deletePrevious
+     */
+    public function __construct($options = [], $output = null, $templateName = '', $path = '', $deletePrevious = false)
+    {
+        $this->options = $options;
+        $this->output = $output;
+        $this->templateName = $templateName;
+        $this->path = $path;
+        $this->deletePrevious = $deletePrevious;
     }
   
     public function Generate()
@@ -130,5 +143,55 @@ class CrudGeneratorFileCreator
         if(file_exists($trypath)) return $trypath;
 
         return __DIR__.'/Templates/'.$template_name.'.tpl.php';
+    }
+
+    /**
+     * Set deletePrevious.
+     *
+     * @param $deletePrevious
+     */
+    public function setDeletePreviousAttribute($deletePrevious)
+    {
+        $this->deletePrevious = $deletePrevious;
+    }
+
+    /**
+     * Set path.
+     *
+     * @param $path
+     */
+    public function setPathAttribute($path)
+    {
+        $this->path = $path;
+    }
+
+    /**
+     * Set templateName.
+     *
+     * @param $templateName
+     */
+    public function setTemplateNameAttribute($templateName)
+    {
+        $this->templateName = $templateName;
+    }
+
+    /**
+     * Set output.
+     *
+     * @param $output
+     */
+    public function setOutputAttribute($output)
+    {
+        $this->output = $output;
+    }
+
+    /**
+     * Set options.
+     *
+     * @param $options
+     */
+    public function setOptionsAttribute($options)
+    {
+        $this->options = $options;
     }
 }
