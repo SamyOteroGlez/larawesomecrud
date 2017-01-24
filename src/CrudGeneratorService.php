@@ -10,17 +10,17 @@ use CrudGenerator\CrudGeneratorFileCreator as FileCreator;
 
 class CrudGeneratorService 
 {
-    public $output = null;
-    public $appNamespace = 'App';
-    public $modelName = '';
-    public $tableName = '';
-    public $formRequest = 'Request';
-    public $prefix = '';
-    public $force = false;
-    public $layout = '';
-    public $controllerName = '';
-    public $existingModel = '';
-    public $viewFolderName = '';
+    private $output = null;
+    private $appNamespace = 'App';
+    private $modelName = '';
+    private $tableName = '';
+    private $formRequest = 'Request';
+    private $prefix = '';
+    private $force = false;
+    private $layout = '';
+    private $controllerName = '';
+    private $existingModel = '';
+    private $viewFolderName = '';
     private $fileCreator;
 
     /**
@@ -662,21 +662,6 @@ class CrudGeneratorService
     }
 
     /**
-     * Show bye bye message.
-     */
-    protected function showSuccessMessage($modelname)
-    {
-        $this->output->info('');
-        $this->output->info('****************************************************');
-        $this->output->info('* Awesome!                                         *');
-        $this->output->info('* The files for ' . $modelname);
-        $this->output->info('* were succesfully generated.                      *');
-        $this->output->info('*                                                  *');
-        $this->output->info('****************************************************');
-        $this->output->info('');
-    }
-
-    /**
      * Set output.
      *
      * @param $output
@@ -684,6 +669,16 @@ class CrudGeneratorService
     public function setOutputAttribute($output)
     {
         $this->output = $output;
+    }
+
+    /**
+     * Get output.
+     *
+     * @return null
+     */
+    public function getOutputAttribute()
+    {
+        return $this->output;
     }
 
     /**
@@ -697,6 +692,16 @@ class CrudGeneratorService
     }
 
     /**
+     * Get appNamespace.
+     *
+     * @return string
+     */
+    public function getAppNamespaceAttribute()
+    {
+        return $this->appNamespace;
+    }
+
+    /**
      * Set modelName.
      *
      * @param $modelName
@@ -704,6 +709,16 @@ class CrudGeneratorService
     public function setModelNameAttribute($modelName)
     {
         $this->modelName = $modelName;
+    }
+
+    /**
+     * Get modelName.
+     *
+     * @return string
+     */
+    public function getModelNameAttribute()
+    {
+        return $this->modelName;
     }
 
     /**
@@ -717,6 +732,16 @@ class CrudGeneratorService
     }
 
     /**
+     * Get tableName.
+     *
+     * @return string
+     */
+    public function getTableNameAttribute()
+    {
+        return $this->tableName;
+    }
+
+    /**
      * Set formRequest.
      *
      * @param $formRequest
@@ -724,6 +749,16 @@ class CrudGeneratorService
     public function setFormRequestAttribute($formRequest)
     {
         $this->formRequest = $formRequest;
+    }
+
+    /**
+     * Get formRequest.
+     *
+     * @return string
+     */
+    public function getFormRequestAttribute()
+    {
+        return $this->formRequest;
     }
 
     /**
@@ -737,6 +772,16 @@ class CrudGeneratorService
     }
 
     /**
+     * Get prefix.
+     *
+     * @return string
+     */
+    public function getPrefixAttribute()
+    {
+        return $this->prefix;
+    }
+
+    /**
      * Set force.
      *
      * @param $force
@@ -744,6 +789,16 @@ class CrudGeneratorService
     public function setForceAttribute($force)
     {
         $this->force = $force;
+    }
+
+    /**
+     * Get force.
+     *
+     * @return bool|false
+     */
+    public function getForceAttribute()
+    {
+        return $this->force;
     }
 
     /**
@@ -757,6 +812,16 @@ class CrudGeneratorService
     }
 
     /**
+     * Get layout.
+     *
+     * @return string
+     */
+    public function getLayoutAttribute()
+    {
+        return $this->layout;
+    }
+
+    /**
      * Set controllerName.
      *
      * @param $controllerName
@@ -764,6 +829,16 @@ class CrudGeneratorService
     public function setControllerNameAttribute($controllerName)
     {
         $this->controllerName = $controllerName;
+    }
+
+    /**
+     * Get controllerName.
+     *
+     * @return string
+     */
+    public function getControllerNameAttribute()
+    {
+        return $this->controllerName;
     }
 
     /**
@@ -777,6 +852,16 @@ class CrudGeneratorService
     }
 
     /**
+     * Get existingModel.
+     *
+     * @return string
+     */
+    public function getExistingModelAttribute()
+    {
+        return $this->existingModel;
+    }
+
+    /**
      * Set viewFolderName.
      *
      * @param $viewFolderName
@@ -784,5 +869,30 @@ class CrudGeneratorService
     public function setViewFolderNameAttribute($viewFolderName)
     {
         $this->viewFolderName = $viewFolderName;
+    }
+
+    /**
+     * Get viewFolderName.
+     *
+     * @return string
+     */
+    public function getViewFolderNameAttribute()
+    {
+        return $this->viewFolderName;
+    }
+
+    /**
+     * Show bye bye message.
+     */
+    protected function showSuccessMessage($modelname)
+    {
+        $this->output->info('');
+        $this->output->info('****************************************************');
+        $this->output->info('* Awesome!                                         *');
+        $this->output->info('* The files for ' . $modelname);
+        $this->output->info('* were succesfully generated.                      *');
+        $this->output->info('*                                                  *');
+        $this->output->info('****************************************************');
+        $this->output->info('');
     }
 }
