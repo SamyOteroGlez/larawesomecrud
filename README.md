@@ -18,12 +18,20 @@ Alfredo Aguirre (alfrednx@gmail.com).
 
 ###Install
 
+#Step 1
+
         composer require samyoteroglez/larawesomecrud
 
 
-Next, add your new provider to the providers array of config/app.php:
+#Step 2
+
+Add your new provider to the providers array of config/app.php:
 
         CrudGenerator\CrudGeneratorServiceProvider::class,
+
+#Step 3
+
+Enjoy it!
 
 
 ###Usage
