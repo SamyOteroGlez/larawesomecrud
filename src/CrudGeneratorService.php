@@ -442,16 +442,15 @@ class CrudGeneratorService
      */
     protected function createModel($modelname, $prefix, $table_name)
     {
+        $table_name = strtolower($modelname);
+        $columns = $this->getColumns($prefix.$table_name);
+        
         Artisan::call('make:model', ['name' => $modelname]);
 
-        $this->appendUseDb(app_path().'/'.$modelname.'.php');
-
-        $table_name = strtolower($modelname);
+        $this->appendUseDb(app_path().'/'.$modelname.'.php');        
         $this->output->info('Custom table name: '.$prefix.$table_name);
         $this->appendToEndOfFile(app_path().'/'.$modelname.'.php', "    protected \$table = '".$table_name."';\n\n}", 2, true);
         
-        $columns = $this->getColumns($prefix.$table_name);
-
         $cc = collect($columns);
 
         $this->addFillable($modelname, $cc);
