@@ -16,7 +16,8 @@ class CrudGeneratorCommand extends Command
     private $prefix;
     private $custom_table_name;
     private $custom_controller;
-    private $singular;
+    private $formrequest;
+    private $dashboard;
 
     /**
      * The name and signature of the console command.
@@ -30,12 +31,10 @@ class CrudGeneratorCommand extends Command
         {--b|--all-but : Generate all the models except for the ones in the list}
         {--r|--formrequest : Generates the form request}
         {--f|--force : Force to generate the CRUD}
-        {--s|--singular : Use singular names}
+        {--m|--dashboard-menu : Generates the links in the mashboard menu}
         {--master-layout= : Use a particular layout}
         {--custom-controller= : Generate the views and the controller only}
         {--black-list : Show the ignored tables}';
-
-    //Todo {--table-name= : Generate for a particular table name}
 
     /**
      * The console command description.
@@ -52,6 +51,9 @@ class CrudGeneratorCommand extends Command
     public function __construct()
     {
         parent::__construct();
+        
+        $this->formrequest = false;
+        $this->dashboard = false;
 
         /**
          * List of tables to ignore when generates the crud.
@@ -73,15 +75,16 @@ class CrudGeneratorCommand extends Command
 
         $this->modelname = strtolower($this->argument('model-name'));
         $this->prefix = \Config::get('database.connections.mysql.prefix');
-        //$this->custom_table_name = $this->option('table-name');
-        $this->custom_controller = $this->option('custom-controller');
-        $this->singular = $this->option('singular');
-        $this->formrequest = false;
+        $this->custom_controller = $this->option('custom-controller');        
 
         if('black-list' == $this->option('black-list')) {
             $this->commandBlackList();
 
             return false;
+        }
+        
+        if('dashboard-menu' == $this->option('dashboard-menu')) {
+            $this->dashboard = true;
         }
 
         $pretables = json_decode(json_encode(DB::select("show tables")), true);
@@ -124,7 +127,8 @@ class CrudGeneratorCommand extends Command
                 $this->prefix,
                 $this->option('force'),
                 $this->option('master-layout'),
-                $controllerName
+                $controllerName,
+                $this->dashboard
             );
 
             $generator->Generate();
@@ -210,13 +214,7 @@ class CrudGeneratorCommand extends Command
             'modelname' => $this->modelname,
             'tablename' => '',
         ];
-
-        if($this->singular) {
-            $tocreate['tablename'] = strtolower($this->modelname);
-        }
-//            else if($this->custom_table_name) {
-//                $tocreate['tablename'] = $this->custom_table_name;
-//            }
+        
         return $tocreate;
     }
 

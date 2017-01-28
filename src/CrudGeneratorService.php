@@ -22,6 +22,7 @@ class CrudGeneratorService
     private $existingModel = '';
     private $viewFolderName = '';
     private $fileCreator;
+    private $dashboard;
 
     /**
      * New CrudGeneratorService instance.
@@ -48,8 +49,9 @@ class CrudGeneratorService
         $force = false,
         $layout = '',
         $controllerName = '',
+        $dashboard = false,
         $existingModel = '',
-        $viewFolderName = ''
+        $viewFolderName = ''        
     )
     {
         $this->output = $output;
@@ -63,6 +65,7 @@ class CrudGeneratorService
         $this->controllerName = $controllerName;
         $this->existingModel = $existingModel;
         $this->viewFolderName = $viewFolderName;
+        $this->dashboard = $dashboard;
 
         $this->fileCreator = new FileCreator();
     }
@@ -115,7 +118,7 @@ class CrudGeneratorService
 
         $this->prepareFileCreator($options);
 
-        if('Request' !== $this->formRequest) {
+        if(false !== $this->formRequest) {
             $options['formrequest'] = $modelname . 'FormRequest';
 
             $this->generateFormRequestClassFile($modelname);
@@ -128,8 +131,50 @@ class CrudGeneratorService
         $this->generateFormViewFile();
         $this->generateIndexViewFile();
         $this->addRoutesToRouteFile();
+        
+        if($this->dashboard) {
+            $this->verifyDashboardMenuPartial();
+        }        
 
         $this->showSuccessMessage($modelname);
+    }
+    
+    protected function verifyDashboardMenuPartial()
+    {
+        if(!is_dir(base_path() . '/resources/views/dashboard')) {
+            $this->createDasboardFolder();
+        }
+        
+        if(!file_exists(base_path().'/resources/views/dashboard/_menu.blade.php')) {
+            $this->createDashboardMenuPartial();
+        }
+        
+        $this->addNewLinkToDashboardMenu();
+    }
+    
+    protected function createDasboardFolder()
+    {
+        $this->output->info('Creating directory: ' . base_path() . '/resources/views/dasboard');
+        mkdir(base_path() . '/resources/views/dashboard');
+    }
+    
+    protected function createDashboardMenuPartial()
+    {
+        $this->createFiles(
+            '_menu',
+            base_path() . '/resources/views/dashboard/_menu.blade.php'
+        );
+    }
+    
+    protected function addNewLinkToDashboardMenu()
+    {
+        $text = '<li class=""><a href="{{route(\''.$this->viewFolderName.'.index\')}}">'.$this->viewFolderName.' <span class="sr-only">(current)</span></a></li>';
+        $this->appendToEndOfFile(
+            base_path() . '/resources/views/dashboard/_menu.blade.php',
+            "\n".$text,
+            0,
+            true
+        );
     }
 
     /**
@@ -442,17 +487,15 @@ class CrudGeneratorService
      */
     protected function createModel($modelname, $prefix, $table_name)
     {
+        $table_name = strtolower($modelname);
+        $columns = $this->getColumns($prefix.$table_name);
+        
         Artisan::call('make:model', ['name' => $modelname]);
 
-        $this->appendUseDb(app_path().'/'.$modelname.'.php');
-
-        if($table_name) {
-            $this->output->info('Custom table name: '.$prefix.$table_name);
-            $this->appendToEndOfFile(app_path().'/'.$modelname.'.php', "    protected \$table = '".$table_name."';\n\n}", 2, true);
-        }
-
-        $columns = $this->getColumns($prefix.($table_name ?: strtolower(str_plural($modelname))));
-
+        $this->appendUseDb(app_path().'/'.$modelname.'.php');        
+        $this->output->info('Custom table name: '.$prefix.$table_name);
+        $this->appendToEndOfFile(app_path().'/'.$modelname.'.php', "    protected \$table = '".$table_name."';\n\n}", 2, true);
+        
         $cc = collect($columns);
 
         $this->addFillable($modelname, $cc);
