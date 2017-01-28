@@ -450,8 +450,11 @@ class CrudGeneratorService
             $this->output->info('Custom table name: '.$prefix.$table_name);
             $this->appendToEndOfFile(app_path().'/'.$modelname.'.php', "    protected \$table = '".$table_name."';\n\n}", 2, true);
         }
+        else{
+            $table_name = strtolower($modelname);
+        }
 
-        $columns = $this->getColumns($prefix.($table_name ?: strtolower(str_plural($modelname))));
+        $columns = $this->getColumns($prefix.$table_name);
 
         $cc = collect($columns);
 
