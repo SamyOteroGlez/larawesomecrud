@@ -1,6 +1,6 @@
 {
     "name": "samyoteroglez/larawesomecrud",
-    "description": "CRUD generator for Laravel. Generates models, controller and views based on the database tables. This project is a fork of kEpEx/laravel-crud-generator from Alfredo Aguirre (alfrednx@gmail.com).",
+    "description": "CRUD generator for Laravel. Generates models, controller and views based on the database tables. This project is based on kEpEx/laravel-crud-generator from Alfredo Aguirre (alfrednx@gmail.com).",
     "keywords": ["laravel", "CRUD", "Generator"],
     "type": "library",
     "license": "MIT",
