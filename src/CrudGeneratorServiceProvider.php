@@ -14,7 +14,7 @@ class CrudGeneratorServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        \Route::get('/testcrudgenerator', function () { echo 'CrudGeneratorServiceProvider: OK'; });
+        //\Route::get('/testcrudgenerator', function () { echo 'CrudGeneratorServiceProvider: OK'; });
         $this->loadViewsFrom(__DIR__.'/views', 'crudgenerator');
 
         $this->publishes([

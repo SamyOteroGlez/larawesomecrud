@@ -31,7 +31,7 @@ class CrudGeneratorFileCreator
         $this->path = $path;
         $this->deletePrevious = $deletePrevious;
     }
-  
+
     public function Generate()
     {
         $c = $this->renderWithData($this->customTemplateOfDefault($this->templateName), $this->options);
@@ -156,6 +156,16 @@ class CrudGeneratorFileCreator
     }
 
     /**
+     * Get deletePrevious.
+     *
+     * @return bool|false
+     */
+    public function getDeletePreviousAttribute()
+    {
+        return $this->deletePrevious;
+    }
+
+    /**
      * Set path.
      *
      * @param $path
@@ -163,6 +173,16 @@ class CrudGeneratorFileCreator
     public function setPathAttribute($path)
     {
         $this->path = $path;
+    }
+
+    /**
+     * Get path.
+     *
+     * @return string
+     */
+    public function getPathAttribute()
+    {
+        return $this->path;
     }
 
     /**
@@ -176,6 +196,16 @@ class CrudGeneratorFileCreator
     }
 
     /**
+     * Get templateName.
+     *
+     * @return string
+     */
+    public function getTemplateNameAttribute()
+    {
+        return $this->templateName;
+    }
+
+    /**
      * Set output.
      *
      * @param $output
@@ -186,6 +216,16 @@ class CrudGeneratorFileCreator
     }
 
     /**
+     * Get output.
+     *
+     * @return null
+     */
+    public function getOutputAttribute()
+    {
+        return $this->output;
+    }
+
+    /**
      * Set options.
      *
      * @param $options
@@ -193,5 +233,15 @@ class CrudGeneratorFileCreator
     public function setOptionsAttribute($options)
     {
         $this->options = $options;
+    }
+
+    /**
+     * Get options.
+     *
+     * @return array
+     */
+    public function getOptionsAttribute()
+    {
+        return $this->options;
     }
 }
