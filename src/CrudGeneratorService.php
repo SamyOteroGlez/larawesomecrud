@@ -115,7 +115,7 @@ class CrudGeneratorService
 
         $this->prepareFileCreator($options);
 
-        if('Request' !== $this->formRequest) {
+        if(false !== $this->formRequest) {
             $options['formrequest'] = $modelname . 'FormRequest';
 
             $this->generateFormRequestClassFile($modelname);
@@ -446,14 +446,10 @@ class CrudGeneratorService
 
         $this->appendUseDb(app_path().'/'.$modelname.'.php');
 
-        if($table_name) {
-            $this->output->info('Custom table name: '.$prefix.$table_name);
-            $this->appendToEndOfFile(app_path().'/'.$modelname.'.php', "    protected \$table = '".$table_name."';\n\n}", 2, true);
-        }
-        else{
-            $table_name = strtolower($modelname);
-        }
-
+        $table_name = strtolower($modelname);
+        $this->output->info('Custom table name: '.$prefix.$table_name);
+        $this->appendToEndOfFile(app_path().'/'.$modelname.'.php', "    protected \$table = '".$table_name."';\n\n}", 2, true);
+        
         $columns = $this->getColumns($prefix.$table_name);
 
         $cc = collect($columns);

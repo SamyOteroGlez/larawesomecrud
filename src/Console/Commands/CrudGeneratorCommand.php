@@ -16,7 +16,7 @@ class CrudGeneratorCommand extends Command
     private $prefix;
     private $custom_table_name;
     private $custom_controller;
-    private $singular;
+    private $formrequest;
 
     /**
      * The name and signature of the console command.
@@ -30,12 +30,9 @@ class CrudGeneratorCommand extends Command
         {--b|--all-but : Generate all the models except for the ones in the list}
         {--r|--formrequest : Generates the form request}
         {--f|--force : Force to generate the CRUD}
-        {--s|--singular : Use singular names}
         {--master-layout= : Use a particular layout}
         {--custom-controller= : Generate the views and the controller only}
         {--black-list : Show the ignored tables}';
-
-    //Todo {--table-name= : Generate for a particular table name}
 
     /**
      * The console command description.
@@ -73,9 +70,7 @@ class CrudGeneratorCommand extends Command
 
         $this->modelname = strtolower($this->argument('model-name'));
         $this->prefix = \Config::get('database.connections.mysql.prefix');
-        //$this->custom_table_name = $this->option('table-name');
         $this->custom_controller = $this->option('custom-controller');
-        $this->singular = $this->option('singular');
         $this->formrequest = false;
 
         if('black-list' == $this->option('black-list')) {
@@ -210,13 +205,7 @@ class CrudGeneratorCommand extends Command
             'modelname' => $this->modelname,
             'tablename' => '',
         ];
-
-        if($this->singular) {
-            $tocreate['tablename'] = strtolower($this->modelname);
-        }
-//            else if($this->custom_table_name) {
-//                $tocreate['tablename'] = $this->custom_table_name;
-//            }
+        
         return $tocreate;
     }
 
