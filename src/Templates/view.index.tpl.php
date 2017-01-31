@@ -18,7 +18,9 @@
                 [[foreach:columns]]
                     <th>[[i.display]]</th>
                 [[endforeach]]
-                    <th style="width:200px"></th>
+                    <th style="width:60px"></th>
+                    <th style="width:60px"></th>
+                    <th style="width:60px"></th>
                 </tr>
               </thead>
               <tbody>
@@ -28,24 +30,28 @@
                     <td>{{ $obj->[[i.name]] }}</td>
                     [[endforeach]]
                     <td>
-                        <div class="btn-group" role="group">
-                          <a href="{{route('[[route_path]].show', [$obj->id])}}"
+                        <a href="{{route('[[route_path]].show', [$obj->id])}}"
                              class="btn btn-info btn-sm" role="button">
                               <i class="glyphicon glyphicon-zoom-in"></i>
                               Details
                           </a>
-                          <a href="{{route('[[route_path]].edit', [$obj->id])}}"
+                    </td>
+                    <td>
+                        <a href="{{route('[[route_path]].edit', [$obj->id])}}"
                              class="btn btn-warning btn-sm" role="button">
                               <i class="glyphicon glyphicon-pencil"></i>
                               Update
                           </a>
-                          <a href="{{route('[[route_path]].destroy', [$obj->id])}}"
-                             class="btn btn-danger btn-sm" role="button"
+                    </td>
+                    <td>
+                        {!! Form::model($obj, ['url' => 'students/'.$obj->id, 'method' => 'DELETE']) !!}
+                            <button href="{{route('[[route_path]].destroy', [$obj->id])}}"
+                             class="btn btn-danger btn-sm" 
                              onclick="return doDelete({!! $obj->id !!})">
                               <i class="glyphicon glyphicon-remove"></i>
                               Delete
-                          </a>
-                        </div>
+                          </button>
+                        {!! Form::close() !!}
                     </td>
                 </tr>
               @endforeach
@@ -85,16 +91,7 @@
 
         function doDelete(id) {
             if(confirm('Do you really want to delete this record?')) {
-               $.ajax({
-                   url: '{{ url('/[[route_path]]') }}/' + id,
-                   type: 'DELETE',
-                   success: function() {
-                       window.location.reload();
-                   },
-                   error: function() {
-                       alert('Woops! Something went wrong. Internal error.');
-                   }
-               });
+                return true;
             }
             return false;
         }

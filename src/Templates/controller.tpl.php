@@ -4,9 +4,8 @@ namespace [[appns]]Http\Controllers;
 
 use Illuminate\Http\Request;
 
-[[if:false !== formrequest]]
 use [[appns]]Http\Requests\[[formrequest]];
-[[endif]]
+
 use [[appns]]Http\Controllers\Controller;
 
 use [[appns]][[model_uc]];

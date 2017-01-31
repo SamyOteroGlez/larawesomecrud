@@ -13,12 +13,15 @@
         <i class="glyphicon glyphicon-plus"></i>
         Create {{ ucfirst('[[model_uc]]') }}
     </a>
-    <a href="{{route('[[route_path]].destroy', [$model->id])}}" class="btn btn-danger btn-sm" role="button"
-       onclick="return doDelete({!! $model->id !!})">
-        <i class="glyphicon glyphicon-remove"></i>
-        Delete {{ ucfirst('[[model_uc]]') }}
-    </a>
 </div>
+{!! Form::model($model, ['url' => 'students/'.$model->id, 'method' => 'DELETE']) !!}
+    <button href="{{route('[[route_path]].destroy', [$model->id])}}"
+     class="btn btn-danger btn-sm" 
+     onclick="return doDelete({!! $model->id !!})">
+      <i class="glyphicon glyphicon-remove"></i>
+      Delete
+  </button>
+{!! Form::close() !!}
 <div class="clearfix"><div/>
 <br/>
 
@@ -57,20 +60,11 @@
 
 <script type="text/javascript">
     function doDelete(id) {
-        if(confirm('Do you really want to delete this record?')) {
-            $.ajax({
-                url: '{{ url('/[[route_path]]') }}/' + id,
-                type: 'DELETE',
-                success: function() {
-                    window.location.reload();
-                },
-                error: function() {
-                    alert('Woops! Something went wrong. Internal error.');
-                }
-            });
+            if(confirm('Do you really want to delete this record?')) {
+                return true;
+            }
+            return false;
         }
-        return false;
-    }
 </script>
 
 @endsection
