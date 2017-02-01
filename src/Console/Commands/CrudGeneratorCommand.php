@@ -52,7 +52,7 @@ class CrudGeneratorCommand extends Command
     {
         parent::__construct();
         
-        $this->formrequest = false;
+        $this->formrequest = 'Request';
         $this->dashboard = false;
 
         /**

@@ -118,8 +118,8 @@ class CrudGeneratorService
 
         $this->prepareFileCreator($options);
 
-        if(false !== $this->formRequest) {
-            $options['formrequest'] = $modelname . 'samysamyFormRequest';
+        if('Request' !== $this->formRequest) {
+            $options['formrequest'] = $modelname . 'FormRequest';
             
             $this->generateFormRequestClassFile($modelname);
         }
