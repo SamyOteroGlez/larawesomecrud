@@ -2,8 +2,6 @@
 
 namespace [[appns]]Http\Controllers;
 
-use Illuminate\Http\Request;
-
 [[if:'Request'!==formrequest]]
 use [[appns]]Http\Requests\[[formrequest]];
 [[endif]]
