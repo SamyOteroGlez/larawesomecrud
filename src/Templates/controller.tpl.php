@@ -2,9 +2,10 @@
 
 namespace [[appns]]Http\Controllers;
 
-[[if:'Request'!==formrequest]]
-use [[appns]]Http\Requests\[[formrequest]];
-[[endif]]
+use Illuminate\Http\Request;
+
+[[requestPath]]
+
 use [[appns]]Http\Controllers\Controller;
 
 use [[appns]][[model_uc]];

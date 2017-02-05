@@ -90,10 +90,11 @@ class CrudGeneratorService
             'prefix' => $this->prefix,
             'custom_master' => $this->layout ?: 'crudgenerator::layouts.master',
             'controller_name' => $this->controllerName,
+            'printFormRequest' => false,
             'formrequest' => $this->formRequest,
             'view_folder' => $this->viewFolderName,
             'route_path' => $this->viewFolderName,
-            'appns' => $this->appNamespace,
+            'appns' => $this->appNamespace
         ];
 
         if(!$this->force) { 
@@ -116,12 +117,15 @@ class CrudGeneratorService
         
         $this->createViewDirectory();
 
-        $this->prepareFileCreator($options);
-
         if('Request' !== $this->formRequest) {
-            $options['formrequest'] = $modelname . 'FormRequest';
-            
+            $options['formrequest'] =  $modelname . 'FormRequest';
+            $options['requestPath'] = 'use App\Http\Requests\\'.$options['formrequest'].';';
+            $this->prepareFileCreator($options);
             $this->generateFormRequestClassFile($modelname);
+        }
+        else {
+            $options['requestPath'] = '';
+            $this->prepareFileCreator($options);
         }
 
         $this->generateControllerClassFile();
