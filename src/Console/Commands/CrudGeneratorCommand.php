@@ -51,7 +51,7 @@ class CrudGeneratorCommand extends Command
     public function __construct()
     {
         parent::__construct();
-        
+
         $this->formrequest = 'Request';
         $this->dashboard = false;
 
@@ -59,8 +59,8 @@ class CrudGeneratorCommand extends Command
          * List of tables to ignore when generates the crud.
          */
         $this->blacklist = [
-            'migrations',
-            'password_resets',
+          'migrations',
+          'password_resets',
         ];
     }
 
@@ -75,37 +75,38 @@ class CrudGeneratorCommand extends Command
 
         $this->modelname = strtolower($this->argument('model-name'));
         $this->prefix = \Config::get('database.connections.mysql.prefix');
-        $this->custom_controller = $this->option('custom-controller');        
+        $this->custom_controller = $this->option('custom-controller');
 
-        if('black-list' == $this->option('black-list')) {
+        if ('black-list' == $this->option('black-list')) {
             $this->commandBlackList();
 
             return false;
         }
-        
-        if('dashboard-menu' == $this->option('dashboard-menu')) {
+
+        if ('dashboard-menu' == $this->option('dashboard-menu')) {
             $this->dashboard = true;
         }
+
 
         $pretables = json_decode(json_encode(DB::select("show tables")), true);
         $tables = [];
         $tocreate = [];
 
-        foreach($pretables as $p) {
+        foreach ($pretables as $p) {
             list($key) = array_keys($p);
-            $tables[] = $p[$key];
+            //This makes sure not to include the pivot tables
+            if (!strpos($p[$key], '_')) {
+                $tables[] = $p[$key];
+            }
         }
 
-        if('all' == $this->option('all') || 'all' == $this->modelname) {
+        if ('all' == $this->option('all') || 'all' == $this->modelname) {
             $tocreate = $this->commandAll($tables);
-        }
-        elseif('all-but' == $this->option('all-but')) {
+        } elseif ('all-but' == $this->option('all-but')) {
             $tocreate = $this->commandAllBut($tables);
-        }
-        elseif('only' == $this->option('only')) {
-           $tocreate = $this->commandOnly($tables);
-        }
-        else {
+        } elseif ('only' == $this->option('only')) {
+            $tocreate = $this->commandOnly($tables);
+        } else {
             $modelName = $this->commandModelName();
             $tocreate = [$modelName];
         }
@@ -114,21 +115,21 @@ class CrudGeneratorCommand extends Command
             $modelName = ucfirst($param['modelname']);
             $controllerName = ucfirst(strtolower($this->custom_controller)) ?: str_plural($modelName);
 
-            if('formrequest' == $this->option('formrequest')) {
-                $this->formrequest =  $modelName . 'FormRequest';
+            if ('formrequest' == $this->option('formrequest')) {
+                $this->formrequest = $modelName . 'FormRequest';
             }
 
             $generator = new Generator(
-                $this,
-                Container::getInstance()->getNamespace(),
-                $modelName,
-                $param['tablename'],
-                $this->formrequest,
-                $this->prefix,
-                $this->option('force'),
-                $this->option('master-layout'),
-                $controllerName,
-                $this->dashboard
+              $this,
+              Container::getInstance()->getNamespace(),
+              $modelName,
+              $param['tablename'],
+              $this->formrequest,
+              $this->prefix,
+              $this->option('force'),
+              $this->option('master-layout'),
+              $controllerName,
+              $this->dashboard
             );
 
             $generator->Generate();
@@ -144,7 +145,7 @@ class CrudGeneratorCommand extends Command
     private function commandBlackList()
     {
         $this->comment('This tables are excluded: ');
-        $this->table([], array ($this->blacklist));
+        $this->table([], array($this->blacklist));
     }
 
     /**
@@ -176,7 +177,7 @@ class CrudGeneratorCommand extends Command
     {
         $allBut = explode(",", $this->modelname);
         $this->info("Generate all models but this: " . implode($allBut, ","));
-        $this->info("List of tables: ".implode($tables, ","));
+        $this->info("List of tables: " . implode($tables, ","));
         $tocreate = $this->generateModelList($tables, $allBut);
         $this->resetValuesToNull();
 
@@ -194,7 +195,7 @@ class CrudGeneratorCommand extends Command
     {
         $only = explode(",", $this->modelname);
         $this->info("Generate only this models: " . implode($only, ","));
-        $this->info("List of tables: ".implode($tables, ","));
+        $this->info("List of tables: " . implode($tables, ","));
         $tocreate = $this->generateModelList($only);
         $this->resetValuesToNull();
 
@@ -211,10 +212,10 @@ class CrudGeneratorCommand extends Command
     {
         $this->info("Generate the model: " . $this->modelname);
         $tocreate = [
-            'modelname' => $this->modelname,
-            'tablename' => '',
+          'modelname' => $this->modelname,
+          'tablename' => '',
         ];
-        
+
         return $tocreate;
     }
 
@@ -232,13 +233,13 @@ class CrudGeneratorCommand extends Command
 
         foreach ($tables as $t) {
 
-            if(!$this->excludeToGenerate($t, $blacklist)) {
+            if (!$this->excludeToGenerate($t, $blacklist)) {
 
-                if($this->prefix == '' || str_contains($t, $this->prefix)) {
+                if ($this->prefix == '' || str_contains($t, $this->prefix)) {
                     $t = strtolower(substr($t, strlen($this->prefix)));
-                    $toadd = ['modelname'=> str_singular($t), 'tablename'=>''];
+                    $toadd = ['modelname' => str_singular($t), 'tablename' => ''];
 
-                    if(str_plural($toadd['modelname']) != $t) {
+                    if (str_plural($toadd['modelname']) != $t) {
                         $toadd['tablename'] = $t;
                     }
                     $tocreate[] = $toadd;
@@ -262,13 +263,13 @@ class CrudGeneratorCommand extends Command
     {
         $ignore = $this->blacklist;
 
-        if(!is_null($blacklist)) {
+        if (!is_null($blacklist)) {
             $ignore = array_merge($ignore, $blacklist);
         }
 
-        foreach($ignore as $element) {
+        foreach ($ignore as $element) {
 
-            if($name == $element) {
+            if ($name == $element) {
                 return true;
             }
         }
