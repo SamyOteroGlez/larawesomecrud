@@ -1,0 +1,97 @@
+@extends('[[custom_master]]')
+
+@section('content')
+
+<div class="btn-group" role="group">
+    <a href="{{ url('[[route_path]]/') }}" class="btn btn-primary btn-sm" role="button">
+        <i class="material-icons left">list</i>
+        List of {{ ucfirst('[[model_plural]]') }}
+    </a>
+    <a href="{{ url('[[route_path]]/create') }}" class="btn btn-primary btn-sm" role="button">
+        <i class="material-icons left">add</i>
+        Create {{ ucfirst('[[model_uc]]') }}
+    </a>
+    <a href="{{route('[[route_path]].edit', [$[[model_singular]]->id])}}" class="btn btn-warning btn-sm" role="button">
+        <i class="material-icons left">mode_edit</i>
+        Update {{ ucfirst('[[model_uc]]') }}
+    </a>
+    <a href="{{route('[[route_path]].destroy', [$[[model_singular]]->id])}}" class="btn btn-danger btn-sm" role="button"
+       onclick="return doDelete({!! $[[model_singular]]->id !!})">
+        <i class="material-icons left">delete</i>
+        Delete {{ ucfirst('[[model_uc]]') }}
+    </a>
+</div>
+<div class="clearfix"></div>
+<div class="form-panel">
+
+    <h3>View {{ ucfirst('[[model_singular]]') }}</h3>
+    {!! Form::model($[[model_singular]], ['url' => '[[route_path]]', 'class' => 'form-horizontal']) !!}
+
+    [% for column in columns %]
+    [% if column.name not in ['id'] %]
+    <div class="row">
+        <div class="input-field col s12">
+            {!! Form::label('[[column.name]]', '[[column.display]]:') !!}
+
+            [% if column.type=='id' %]
+            {!! Form::text('[[column.name]]', $[[model_singular]]->[[column.name]], ['readonly' => 'readonly'])!!}
+            [% endif %]
+            [% if column.type=='text'%]
+            {!! Form::text('[[column.name]]', $[[model_singular]]->[[column.name]], [ 'readonly' => 'readonly'])!!}
+            [% endif %]
+
+            [% if column.type=='number'%]
+            {!! Form::number('[[column.name]]', $[[model_singular]]->[[column.name]], [ 'readonly' => 'readonly'])!!}
+            [% endif %]
+
+            [% if column.type=='related' %]
+            {!! Form::text('[[column.name]]',
+            $[[model_singular]]->[[column.displayMethodName]]->[[column.displayRelatedField]],
+            [ 'readonly' => 'readonly'])!!}
+            [% endif %]
+
+            [% if column.type=='date' %]
+            {!! Form::date('[[column.name]]', $[[model_singular]]->[[column.name]], [ 'readonly' => 'readonly'])!!}
+            [% endif %]
+
+
+            [% if column.type=='textarea'%]
+            {!! Form::textarea('[[column.name]]', $[[model_singular]]->[[column.name]], ['class' =>
+            'materialize-textarea', 'readonly' => 'readonly'])!!}
+            [% endif %]
+
+            [% if column.type=='unknown' %]
+            {!! Form::text('[[column.name]]', $[[model_singular]]->[[column.name]], [ 'readonly' => 'readonly'])!!}
+            [% endif %]
+
+        </div>
+    </div>
+    [% endif %]
+
+    [% endfor %]
+
+    {!! Form::close() !!}
+
+</div>
+@endsection
+@section('scripts')
+
+<script type="text/javascript">
+  function doDelete(id) {
+    if (confirm('Do you really want to delete this record?')) {
+      $.ajax({
+        url: '{{ url('/[[route_path]]') }}/' + id,
+        type: 'DELETE',
+        success: function () {
+          window.location.reload();
+        },
+        error: function () {
+          alert('Woops! Something went wrong. Internal error.');
+        }
+      });
+    }
+    return false;
+  }
+</script>
+
+@endsection

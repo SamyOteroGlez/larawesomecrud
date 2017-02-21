@@ -1,5 +1,9 @@
 <?php
-
+/* TODO Change generate function
+ * The Generate command is too monolithic
+ * The way it is now you can not do only views, only api, only controller, etc
+ *
+ * */
 namespace CrudGenerator;
 
 use DB;
@@ -8,9 +12,11 @@ use Faker\Provider\File;
 use Illuminate\Console\Command;
 use CrudGenerator\CrudGeneratorFileCreator as FileCreator;
 
+//require '/vendor/smarty/smarty/libs/Smarty.class.php';
+
 class CrudGeneratorService
 {
-    private $output = null;
+    private $commandObject = null;
     private $appNamespace = 'App';
     private $modelName = '';
     private $tableName = '';
@@ -19,10 +25,15 @@ class CrudGeneratorService
     private $force = false;
     private $layout = '';
     private $controllerName = '';
+    private $apiControllerName = '';
+
     private $existingModel = '';
     private $viewFolderName = '';
     private $fileCreator;
     private $dashboard;
+    private $generateFromFolder = null;
+    private $templateEngine = null;
+    private $options = null;
 
     /**
      * New CrudGeneratorService instance.
@@ -36,6 +47,7 @@ class CrudGeneratorService
      * @param bool|false $force
      * @param string $layout
      * @param string $controllerName
+     * @param string $apiControllerName
      * @param string $existingModel
      * @param string $viewFolderName
      */
@@ -49,11 +61,13 @@ class CrudGeneratorService
       $force = false,
       $layout = '',
       $controllerName = '',
+      $apiControllerName = '',
       $dashboard = false,
       $existingModel = '',
-      $viewFolderName = ''
+      $viewFolderName = '',
+      $generateFromFolder = 'bootstrap'
     ) {
-        $this->output = $output;
+        $this->commandObject = $output;
         $this->appNamespace = $appNamespace;
         $this->modelName = $modelName;
         $this->tableName = $tableName;
@@ -62,11 +76,14 @@ class CrudGeneratorService
         $this->force = $force;
         $this->layout = $layout;
         $this->controllerName = $controllerName;
+        $this->apiControllerName = $apiControllerName;
         $this->existingModel = $existingModel;
         $this->viewFolderName = $viewFolderName;
         $this->dashboard = $dashboard;
+        $this->generateFromFolder = $generateFromFolder;
 
         $this->fileCreator = new FileCreator();
+        //$this->commandObject->info('Created with generate from folder: '.$this->generateFromFolder);
     }
 
     /**
@@ -77,9 +94,43 @@ class CrudGeneratorService
         $modelname = ucfirst(str_singular($this->modelName));
         $this->viewFolderName = strtolower($this->controllerName);
 
-        $this->output->info('Creating catalogue for table: ' . ($this->tableName ?: strtolower(str_plural($this->modelName))));
-        $this->output->info('Model Name: ' . $modelname);
+        $this->commandObject->info('Creating catalogue for table: ' . ($this->tableName ?: strtolower(str_plural($this->modelName))));
+        $this->commandObject->info('Model Name: ' . $modelname);
 
+        if (!$this->force) {
+            if (file_exists(app_path() . '/' . $modelname . '.php')) {
+                $this->commandObject->info('The model class already exists, use --force to overwrite');
+                return;
+            }
+            if (file_exists(app_path() . '/Http/Controllers/' . $this->controllerName . 'Controller.php')) {
+                $this->commandObject->info('The controller class already exists, use --force to overwrite');
+                return;
+            }
+            if (file_exists(app_path() . '/Http/Controllers/Api/' . $this->apiControllerName . 'Controller.php')) {
+                $this->commandObject->info('The api controller class already exists, use --force to overwrite');
+                return;
+            }
+            if (file_exists(base_path() . '/resources/views/' . $this->viewFolderName . '/_form.blade.php')) {
+                $this->commandObject->info('The _form.blade.php view already exists, use --force to overwrite');
+                return;
+            }
+            if (file_exists(base_path() . '/resources/views/' . $this->viewFolderName . '/create.blade.php')) {
+                $this->commandObject->info('The create.blade.php view already exists, use --force to overwrite');
+                return;
+            }
+            if (file_exists(base_path() . '/resources/views/' . $this->viewFolderName . '/show.blade.php')) {
+                $this->commandObject->info('The show.blade.php view already exists, use --force to overwrite');
+                return;
+            }
+            if (file_exists(base_path() . '/resources/views/' . $this->viewFolderName . '/edit.blade.php')) {
+                $this->commandObject->info('The edit.blade.php view already exists, use --force to overwrite');
+                return;
+            }
+            if (file_exists(base_path() . '/resources/views/' . $this->viewFolderName . '/index.blade.php')) {
+                $this->commandObject->info('The index.blade.php view already exists, use --force to overwrite');
+                return;
+            }
+        }
         $options = [
           'model_uc' => $modelname,
           'model_uc_plural' => str_plural($modelname),
@@ -89,71 +140,56 @@ class CrudGeneratorService
           'prefix' => $this->prefix,
           'custom_master' => $this->layout ?: 'crudgenerator::layouts.master',
           'controller_name' => $this->controllerName,
+          'api_controller_name' => $this->apiControllerName,
           'formrequest' => $this->formRequest,
           'view_folder' => $this->viewFolderName,
           'route_path' => $this->viewFolderName,
           'appns' => $this->appNamespace,
         ];
 
-        if (!$this->force) {
-            if (file_exists(app_path() . '/' . $modelname . '.php')) {
-                $this->output->info('The model class already exists, use --force to overwrite');
-                return;
-            }
-            if (file_exists(app_path() . '/Http/Controllers/' . $this->controllerName . 'Controller.php')) {
-                $this->output->info('The controller class already exists, use --force to overwrite');
-                return;
-            }
-            if (file_exists(base_path() . '/resources/views/' . $this->viewFolderName . '/_form.blade.php')) {
-                $this->output->info('The _form.blade.php view already exists, use --force to overwrite');
-                return;
-            }
-            if (file_exists(base_path() . '/resources/views/' . $this->viewFolderName . '/create.blade.php')) {
-                $this->output->info('The create.blade.php view already exists, use --force to overwrite');
-                return;
-            }
-            if (file_exists(base_path() . '/resources/views/' . $this->viewFolderName . '/show.blade.php')) {
-                $this->output->info('The show.blade.php view already exists, use --force to overwrite');
-                return;
-            }
-            if (file_exists(base_path() . '/resources/views/' . $this->viewFolderName . '/edit.blade.php')) {
-                $this->output->info('The edit.blade.php view already exists, use --force to overwrite');
-                return;
-            }
-            if (file_exists(base_path() . '/resources/views/' . $this->viewFolderName . '/index.blade.php')) {
-                $this->output->info('The index.blade.php view already exists, use --force to overwrite');
-                return;
-            }
-        }
-
         $this->deletePreviousFiles($options['tablename']);
-
         $columns = $this->createModel($modelname, $this->prefix, $this->tableName);
 
         $options['columns'] = $columns;
         $options['first_column_nonid'] = count($columns) > 1 ? $columns[1]['name'] : '';
         $options['num_columns'] = count($columns);
 
-        $this->createViewDirectory();
 
-        if('Request' !== $this->formRequest) {
-            $options['formrequest'] =  $modelname . 'FormRequest';
-            $options['requestPath'] = 'use App\Http\Requests\\'.$options['formrequest'].';';
-        $this->prepareFileCreator($options);
+        $this->createViewDirectory();
+        $this->createApiDirectory();
+        $this->options = $options;
+
+        $this->prepareFileCreator($this->options);
+
+        $loader = new \Twig_Loader_Filesystem(__DIR__ . '/Templates/' . $this->generateFromFolder . '/');
+        $this->templateEngine = new \Twig_Environment($loader, array(
+          'cache' => false,
+          'debug' => true,
+          'optimization' => false
+        ));
+        $lexer = new \Twig_Lexer($this->templateEngine, array(
+          'tag_comment' => array('[#', '#]'),
+          'tag_block' => array('[%', '%]'),
+          'tag_variable' => array('[[', ']]'),
+          'interpolation' => array('#[', ']'),
+        ));
+        $this->templateEngine->setLexer($lexer);
+
+        if (false !== $this->formRequest) {
+            $options['formrequest'] = $modelname . 'FormRequest';
             $this->generateFormRequestClassFile($modelname);
         }
-        else {
-            $options['requestPath'] = '';
-            $this->prepareFileCreator($options);
-        }
 
+        $this->generateApiControllerClassFile();
+        $this->addApiRoutesToRouteFile();
         $this->generateControllerClassFile();
+        $this->addRoutesToRouteFile();
         $this->generateCreateViewFile();
         $this->generateShowViewFile();
         $this->generateEditViewFile();
         $this->generateFormViewFile();
         $this->generateIndexViewFile();
-        $this->addRoutesToRouteFile();
+
 
         if ($this->dashboard) {
             $this->verifyDashboardMenuPartial();
@@ -164,9 +200,7 @@ class CrudGeneratorService
 
     protected function verifyDashboardMenuPartial()
     {
-        if (!is_dir(base_path() . '/resources/views/dashboard')) {
-            $this->createDasboardFolder();
-        }
+        $this->createDasboardFolder();
 
         if (!file_exists(base_path() . '/resources/views/dashboard/_menu.blade.php')) {
             $this->createDashboardMenuPartial();
@@ -177,8 +211,7 @@ class CrudGeneratorService
 
     protected function createDasboardFolder()
     {
-        $this->output->info('Creating directory: ' . base_path() . '/resources/views/dasboard');
-        mkdir(base_path() . '/resources/views/dashboard');
+        $this->createDirectoryIfnotexist(base_path() . '/resources/views/dashboard');
     }
 
     protected function createDashboardMenuPartial()
@@ -205,9 +238,27 @@ class CrudGeneratorService
      */
     protected function createViewDirectory()
     {
-        if (!is_dir(base_path() . '/resources/views/' . $this->viewFolderName)) {
-            $this->output->info('Creating directory: ' . base_path() . '/resources/views/' . $this->viewFolderName);
-            mkdir(base_path() . '/resources/views/' . $this->viewFolderName);
+        $this->createDirectoryIfnotexist(base_path() . '/resources/views/' . $this->viewFolderName);
+    }
+
+    /**
+     * Create the api directory if don't exist.
+     */
+    protected function createApiDirectory()
+    {
+        $this->createDirectoryIfnotexist(base_path() . '/app/Http/Controllers/Api/');
+    }
+
+    /**
+     * @param $directory
+     */
+    protected function createDirectoryIfnotexist($directory)
+    {
+        if (!empty($directory)) {
+            if (!is_dir($directory)) {
+                $this->commandObject->info('Creating directory: ' . $directory);
+                mkdir($directory);
+            }
         }
     }
 
@@ -219,7 +270,26 @@ class CrudGeneratorService
     protected function prepareFileCreator($options)
     {
         $this->fileCreator->setOptionsAttribute($options);
-        $this->fileCreator->setOutputAttribute($this->output);
+        $this->fileCreator->setOutputAttribute($this->commandObject);
+        //$this->commandObject->info('Prepare-- Folder: '.$this->generateFromFolder);
+        $this->fileCreator->setGenerateFromFolder($this->generateFromFolder);
+
+    }
+
+    /**
+     * Add new routes to the route.php file.
+     */
+    protected function addApiRoutesToRouteFile()
+    {
+        /*      $startText = '//Start routes for ' . $this->viewFolderName;
+              $this->addTextToRoutesFile($startText);
+
+              $route = 'Route::resource(\'/' . $this->viewFolderName . '\', \'' . $this->controllerName . 'Controller\');';
+              $this->addTextToRoutesFile($route, true);
+
+              $endText = '//End routes for ' . $this->viewFolderName;
+              $this->addTextToRoutesFile($endText);
+        */
     }
 
     /**
@@ -246,11 +316,11 @@ class CrudGeneratorService
     protected function addTextToRoutesFile($text, $message = false)
     {
         //$this->appendToEndOfFile(base_path() . '/app/Http/routes.php', "\n" . $text, 0, true);
-        // Laravel 5.3 >
+        // Laravel >=5.3
         $this->appendToEndOfFile(base_path() . '/routes/web.php', "\n" . $text, 0, true);
 
         if ($message) {
-            $this->output->info('Adding Route: ' . $text);
+            $this->commandObject->info('Adding Route: ' . $text);
         }
     }
 
@@ -266,7 +336,7 @@ class CrudGeneratorService
           app_path() . '/Http/Requests/' . $modelName . 'FormRequest.php'
         );
 
-        $this->output->info('FormRequest Name: ' . $modelName . 'FormRequest');
+        $this->commandObject->info('FormRequest Name: ' . $modelName . 'FormRequest');
     }
 
     /**
@@ -279,6 +349,16 @@ class CrudGeneratorService
           app_path() . '/Http/Controllers/' . $this->controllerName . 'Controller.php'
         );
     }
+
+    protected function generateApiControllerClassFile()
+    {
+        $this->createFiles(
+          'api_controller',
+          app_path() . '/Http/Controllers/Api/' . $this->apiControllerName . 'Controller.php'
+        );
+
+    }
+
 
     /**
      * Generate the view create.blade.php file.
@@ -296,10 +376,13 @@ class CrudGeneratorService
      */
     protected function generateShowViewFile()
     {
-        $this->createFiles(
-          'view.show',
-          base_path() . '/resources/views/' . $this->viewFolderName . '/show.blade.php'
-        );
+        $info = $this->templateEngine->render('view.show.twig', $this->options);
+
+        file_put_contents(base_path() . '/resources/views/' . $this->viewFolderName . '/show.blade.php', $info);
+//        $this->createFiles(
+//          'view.show',
+//          base_path() . '/resources/views/' . $this->viewFolderName . '/show.blade.php'
+//        );
     }
 
     /**
@@ -315,10 +398,15 @@ class CrudGeneratorService
 
     protected function generateFormViewFile()
     {
-        $this->createFiles(
-          'view._form',
-          base_path() . '/resources/views/' . $this->viewFolderName . '/_form.blade.php'
-        );
+        $info = $this->templateEngine->render('view._form.twig', $this->options);
+
+        file_put_contents(base_path() . '/resources/views/' . $this->viewFolderName . '/_form.blade.php', $info);
+
+
+//        $this->createFiles(
+//          'view._form',
+//          base_path() . '/resources/views/' . $this->viewFolderName . '/_form.blade.php'
+//        );
     }
 
     /**
@@ -326,10 +414,15 @@ class CrudGeneratorService
      */
     protected function generateIndexViewFile()
     {
-        $this->createFiles(
-          'view.index',
-          base_path() . '/resources/views/' . $this->viewFolderName . '/index.blade.php'
-        );
+        $info = $this->templateEngine->render('view.index.twig', $this->options);
+
+        file_put_contents(base_path() . '/resources/views/' . $this->viewFolderName . '/index.blade.php', $info);
+
+
+//        $this->createFiles(
+//          'view.index',
+//          base_path() . '/resources/views/' . $this->viewFolderName . '/index.blade.php'
+//        );
     }
 
     /**
@@ -340,6 +433,7 @@ class CrudGeneratorService
      */
     protected function createFiles($templateName, $path)
     {
+
         $this->fileCreator->setTemplateNameAttribute($templateName);
         $this->fileCreator->setPathAttribute($path);
         $this->fileCreator->Generate();
@@ -354,21 +448,7 @@ class CrudGeneratorService
      */
     protected function getColumns($tablename)
     {
-        $dbType = DB::getDriverName();
-
-        switch ($dbType) {
-            case "pgsql":
-                $cols = DB::select("select column_name as Field, "
-                  . "data_type as Type, "
-                  . "is_nullable as Null "
-                  . "from INFORMATION_SCHEMA.COLUMNS "
-                  . "where table_name = '" . $tablename . "'");
-                break;
-
-            default:
-                $cols = DB::select("show columns from " . $tablename);
-                break;
-        }
+        $cols = $this->getColumnNames($tablename);
 
         $ret = [];
 
@@ -390,6 +470,12 @@ class CrudGeneratorService
                 $cadd['type'] = 'related';
                 $cadd['relatedName'] = $related->REFERENCED_TABLE_NAME;
                 $cadd['display'] = ucwords($related->REFERENCED_TABLE_NAME);
+                // Get Second field from the related table
+                $relCols = $this->getColumnNames($related->REFERENCED_TABLE_NAME);
+
+                $cadd['displayMethodName'] = str_singular(strtolower($related->REFERENCED_TABLE_NAME));
+                $cadd['displayRelatedField'] = $relCols[1]->Field;
+
             } else {
                 $cadd['type'] = $field == 'id' ? 'id' : $this->getTypeFromDBType($type);
                 $cadd['display'] = ucwords(str_replace('_', ' ', $field));
@@ -397,7 +483,6 @@ class CrudGeneratorService
 
             $ret[] = $cadd;
         }
-
         return $ret;
     }
 
@@ -411,15 +496,14 @@ class CrudGeneratorService
     protected function getRelatedObjDataFK($tablename, $fkName)
     {
         $dbname = DB::connection()->getDatabaseName();
-
+// This seems to be MySQL specific
         $result = DB::table('INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS')
           ->select('*')
           ->where('CONSTRAINT_SCHEMA', $dbname)
           ->where('TABLE_NAME', $tablename)
           ->where('CONSTRAINT_NAME', $tablename . '_' . $fkName . '_foreign')
           ->where('UNIQUE_CONSTRAINT_NAME', 'PRIMARY')
-          ->first();
-        //Changed the get to a first in order to avoid problems down the line
+          ->first(); //Changed the get to a first in order to avoid problems down the line
         return $result;
     }
 
@@ -503,13 +587,15 @@ class CrudGeneratorService
         if (str_contains($dbtype, 'int') || str_contains($dbtype, 'float')) {
             return 'number';
         }
-        if (str_contains($dbtype, 'date')) {
+
+        if (str_contains($dbtype, 'date') || str_contains($dbtype, 'timestamp')) {
             return 'date';
         }
+
         if (str_contains($dbtype, 'text')) {
             return 'textarea';
         }
-
+        $this->commandObject->info('FieldType ' . $dbtype);
         return 'unknown';
     }
 
@@ -527,12 +613,11 @@ class CrudGeneratorService
             $table_name = strtolower(str_plural($modelname));
         }
         $columns = $this->getColumns($prefix . $table_name);
-//TODO replace with function that creates the relationship functions too
         Artisan::call('make:model', ['name' => $modelname]); // Executes default make model
 
 
         $this->appendUseDb(app_path() . '/' . $modelname . '.php');
-        $this->output->info('Custom table name: ' . $prefix . $table_name);
+        $this->commandObject->info('Custom table name: ' . $prefix . $table_name);
         $this->appendToEndOfFile(app_path() . '/' . $modelname . '.php',
           "    protected \$table = '" . $table_name . "';\n\n}", 2, true);
 
@@ -541,8 +626,8 @@ class CrudGeneratorService
         $this->addFillable($modelname, $cc);
 
         $this->addAppends($modelname, $table_name);
-
-        if (!$cc->contains('name', 'updated_at') || !$cc->contains('name', 'created_at')) {
+        //TODO the comparison states that if there is no updated_at OR no created_at it should not generate with timestamps  would be better if there is no updated_at AND no created_at then do not genereate with timestamps
+        if (!$cc->contains('name', 'updated_at') && !$cc->contains('name', 'created_at')) {
             $this->appendToEndOfFile(app_path() . '/' . $modelname . '.php', "\n    public \$timestamps = false;\n\n}",
               2, true);
         }
@@ -573,11 +658,11 @@ class CrudGeneratorService
             }
         }
 
-        $this->appendAttributes($modelname, $table_name, $cc);
+        $this->appendAttributes($modelname, $table_name, $cc, $prefix);
 
         $this->appendToEndOfFile(app_path() . '/' . $modelname . '.php', "\n}", 0, false);
 
-        $this->output->info('Model created, columns: ' . json_encode($columns));
+        $this->commandObject->info('Model created, columns: ' . json_encode($columns));
 
         return $columns;
     }
@@ -588,11 +673,13 @@ class CrudGeneratorService
      * @param $modelname
      * @param $table_name
      * @param $columName
+     * @param $prefix
      */
-    protected function appendAttributes($modelname, $table_name, $columName)
+    protected function appendAttributes($modelname, $table_name, $columName, $prefix)
     {
         $dataRelated = $this->getRelatedObjData($table_name);
-        $columName = $columName[1]['name'];
+        //$this->commandObject->info('Model Name '.$modelname );
+        //$columName = $columName[1]['name'];
 
         if (!empty($dataRelated)) {
 
@@ -600,8 +687,16 @@ class CrudGeneratorService
 
                 if ($table_name == $obj->TABLE_NAME && !empty($obj->REFERENCED_TABLE_NAME)) {
                     $referencedClassName = ucwords($obj->REFERENCED_TABLE_NAME);
+
+                    $referencedTable = collect($this->getColumns($prefix . $obj->REFERENCED_TABLE_NAME));
+
+                    $columName = $referencedTable[1]['name'];
                     $this->appendToEndOfFile(app_path() . '/' . $modelname . '.php',
-                      "\n    public function get" . "$referencedClassName" . "ListAttribute()\n    {\n        \$data = DB::table('$obj->REFERENCED_TABLE_NAME')->lists('$columName' , 'id');\n\n        return \$data;\n    }\n",
+                      "\n    public function get" . "$referencedClassName" . "ListAttribute()\n" .
+                      "    {\n" .
+                      "        \$data = " . str_singular($referencedClassName) . "::all()->pluck('$columName' , 'id');\n\n" .
+                      "        return \$data;\n" .
+                      "    }\n   /* Do not forget to add:\n     Use App\\" . str_singular($referencedClassName) . ";\n   above */",
                       0, true);
                 }
             }
@@ -670,9 +765,12 @@ class CrudGeneratorService
      */
     protected function appendBelongTo($modelname, $referencedName)
     {
-        $referencedClassName = ucwords($referencedName);
+        $referencedClassName = str_singular(ucwords($referencedName));
         $this->appendToEndOfFile(app_path() . '/' . $modelname . '.php',
-          "\n    public function $referencedName()\n    {\n        return \$this->belongsTo('App\\$referencedClassName');\n    }\n",
+          "\n    public function " . str_singular($referencedName) . "()\n" .
+          "    {\n" .
+          "        return \$this->belongsTo('App\\$referencedClassName');\n" .
+          "    }\n",
           0, true);
     }
 
@@ -684,7 +782,7 @@ class CrudGeneratorService
      */
     protected function appendHasMany($modelname, $relatedName)
     {
-        $relatedClassName = ucwords($relatedName);
+        $relatedClassName = str_singular(ucwords($relatedName));
         $this->appendToEndOfFile(app_path() . '/' . $modelname . '.php',
           "\n    public function $relatedName()\n    {\n        return \$this->hasMany('App\\$relatedClassName');\n    }\n",
           0, true);
@@ -699,6 +797,7 @@ class CrudGeneratorService
     {
         $todelete = [
           app_path() . '/Http/Controllers/' . ucfirst($name) . 'Controller.php',
+          app_path() . '/Http/Controllers/Api/' . ucfirst($name) . 'Controller.php',
           base_path() . '/resources/views/' . str_plural($name) . '/index.blade.php',
           base_path() . '/resources/views/' . str_plural($name) . '/create.blade.php',
           base_path() . '/resources/views/' . str_plural($name) . '/edit.blade.php',
@@ -756,7 +855,7 @@ class CrudGeneratorService
      */
     public function setOutputAttribute($output)
     {
-        $this->output = $output;
+        $this->commandObject = $output;
     }
 
     /**
@@ -766,7 +865,7 @@ class CrudGeneratorService
      */
     public function getOutputAttribute()
     {
-        return $this->output;
+        return $this->commandObject;
     }
 
     /**
@@ -894,7 +993,7 @@ class CrudGeneratorService
      *
      * @param $layout
      */
-    public function setLauyoutAttribute($layout)
+    public function setLayoutAttribute($layout)
     {
         $this->layout = $layout;
     }
@@ -974,13 +1073,58 @@ class CrudGeneratorService
      */
     protected function showSuccessMessage($modelname)
     {
-        $this->output->info('');
-        $this->output->info('****************************************************');
-        $this->output->info('* Awesome!                                         *');
-        $this->output->info('* The files for ' . $modelname);
-        $this->output->info('* were succesfully generated.                      *');
-        $this->output->info('*                                                  *');
-        $this->output->info('****************************************************');
-        $this->output->info('');
+        $this->commandObject->info('');
+        $this->commandObject->info('****************************************************');
+        $this->commandObject->info(' The files for ' . $modelname);
+        $this->commandObject->info(' were succesfully generated.');
+        $this->commandObject->info('');
+    }
+
+    /**
+     * @param $columns
+     * @return mixed
+     */
+    public function convertToColumns($columns)
+    {
+        $modColumns = [];
+        foreach ($columns as $i) {
+            $d = [];
+
+            if (is_array($i)) {
+
+                foreach ($i as $key => $value) {
+                    $d['column.' . $key] = $value;
+                }
+            } else {
+                $d['column'] = $i;
+            }
+            array_push($modColumns, $d);
+
+        }
+        return $modColumns;
+    }
+
+    /**
+     * @param $tablename
+     * @return mixed
+     */
+    protected function getColumnNames($tablename)
+    {
+        $dbType = DB::getDriverName();
+
+        switch ($dbType) {
+            case "pgsql":
+                $cols = DB::select("select column_name as Field, "
+                  . "data_type as Type, "
+                  . "is_nullable as Null "
+                  . "from INFORMATION_SCHEMA.COLUMNS "
+                  . "where table_name = '" . $tablename . "'");
+                break;
+
+            default:
+                $cols = DB::select("show columns from " . $tablename);
+                break;
+        }
+        return $cols;
     }
 }

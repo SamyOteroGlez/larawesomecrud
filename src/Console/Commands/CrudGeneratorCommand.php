@@ -18,22 +18,24 @@ class CrudGeneratorCommand extends Command
     private $custom_controller;
     private $formrequest;
     private $dashboard;
+    private $generateFromFolder;
 
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'make:crud
+    protected $signature = 'create:crud
         {model-name=all : Name of the model. In some cases you may enter a list (firstModel,secondModel,finalModel)}
         {--a|--all : Generate all the models}
         {--o|--only : Generate all the models in the list}
         {--b|--all-but : Generate all the models except for the ones in the list}
         {--r|--formrequest : Generates the form request}
         {--f|--force : Force to generate the CRUD}
-        {--m|--dashboard-menu : Generates the links in the mashboard menu}
-        {--master-layout= : Use a particular layout}
-        {--custom-controller= : Generate the views and the controller only}
+        {--m|--dashboard-menu : Generates the links in the dashboard menu}
+        {--t|--base-template= : Use a specific base template to generate (materialize or bootstrap)}
+        {--l|--master-layout= : Use a particular layout}
+        {--c|--custom-controller= : Generate the views and the controller only}
         {--black-list : Show the ignored tables}';
 
     /**
@@ -52,7 +54,7 @@ class CrudGeneratorCommand extends Command
     {
         parent::__construct();
 
-        $this->formrequest = 'Request';
+        $this->formrequest = false;
         $this->dashboard = false;
 
         /**
@@ -64,6 +66,17 @@ class CrudGeneratorCommand extends Command
         ];
     }
 
+    /**
+     * @param null $objects
+     * @return mixed|null
+     */
+    private function ArrayOfObjectsToArray($objects = null)
+    {
+        if ($objects == null) {
+            return null;
+        }
+        return json_decode(json_encode($objects), true);
+    }
     /**
      * Execute the console command.
      *
@@ -77,9 +90,14 @@ class CrudGeneratorCommand extends Command
         $this->prefix = \Config::get('database.connections.mysql.prefix');
         $this->custom_controller = $this->option('custom-controller');
 
+
+//        $this->info('Options: '. implode("; ",$this->options()));
+//        $this->info('Arguments: '. implode("; ",$this->arguments()));
+
+        $this->info('');
+
         if ('black-list' == $this->option('black-list')) {
             $this->commandBlackList();
-
             return false;
         }
 
@@ -87,10 +105,14 @@ class CrudGeneratorCommand extends Command
             $this->dashboard = true;
         }
 
+        $this->generateFromFolder = $this->option('base-template');
 
-        $pretables = json_decode(json_encode(DB::select("show tables")), true);
+        //$this->info('Base Template: '.$this->generateFromFolder);
+
+        $pretables = $this->ArrayOfObjectsToArray(DB::select("show tables"));
+
         $tables = [];
-        $tocreate = [];
+        $createThese = [];
 
         foreach ($pretables as $p) {
             list($key) = array_keys($p);
@@ -101,20 +123,21 @@ class CrudGeneratorCommand extends Command
         }
 
         if ('all' == $this->option('all') || 'all' == $this->modelname) {
-            $tocreate = $this->commandAll($tables);
+            $createThese = $this->commandAll($tables);
         } elseif ('all-but' == $this->option('all-but')) {
-            $tocreate = $this->commandAllBut($tables);
+            $createThese = $this->commandAllBut($tables);
         } elseif ('only' == $this->option('only')) {
-            $tocreate = $this->commandOnly($tables);
+            $createThese = $this->commandOnly($tables);
         } else {
             $modelName = $this->commandModelName();
-            $tocreate = [$modelName];
+            $createThese = [$modelName];
         }
 
-        foreach ($tocreate as $param) {
-            $modelName = ucfirst($param['modelname']);
-            $controllerName = ucfirst(strtolower($this->custom_controller)) ?: str_plural($modelName);
+        foreach ($createThese as $createThis) {
 
+            $modelName = ucfirst($createThis['modelname']);
+            $controllerName = ucfirst(strtolower($this->custom_controller)) ?: str_plural($modelName);
+            $this->info('ControllerName: ' . $controllerName);
             if ('formrequest' == $this->option('formrequest')) {
                 $this->formrequest = $modelName . 'FormRequest';
             }
@@ -123,13 +146,17 @@ class CrudGeneratorCommand extends Command
               $this,
               Container::getInstance()->getNamespace(),
               $modelName,
-              $param['tablename'],
+              $createThis['tablename'],
               $this->formrequest,
               $this->prefix,
               $this->option('force'),
               $this->option('master-layout'),
               $controllerName,
-              $this->dashboard
+              $controllerName, // Api Controller This allows the use of a different name
+              null,
+              null,
+              $this->dashboard,
+              $this->generateFromFolder
             );
 
             $generator->Generate();
@@ -144,7 +171,7 @@ class CrudGeneratorCommand extends Command
      */
     private function commandBlackList()
     {
-        $this->comment('This tables are excluded: ');
+        $this->comment('These tables are excluded: ');
         $this->table([], array($this->blacklist));
     }
 
@@ -193,9 +220,14 @@ class CrudGeneratorCommand extends Command
      */
     private function commandOnly($tables)
     {
-        $only = explode(",", $this->modelname);
-        $this->info("Generate only this models: " . implode($only, ","));
+        //
+        //TODO if more than one model change text to these models
+        //if ($this->modelname)
+        //$this->info("Count ".);
+        $this->info("Generate this model: " . $this->modelname . " only");
         $this->info("List of tables: " . implode($tables, ","));
+
+        $only = explode(",", $this->modelname);
         $tocreate = $this->generateModelList($only);
         $this->resetValuesToNull();
 
@@ -210,7 +242,8 @@ class CrudGeneratorCommand extends Command
      */
     private function commandModelName()
     {
-        $this->info("Generate the model: " . $this->modelname);
+        $this->info("----------------------------------------------------");
+        $this->info("- Generate the model: " . $this->modelname);
         $tocreate = [
           'modelname' => $this->modelname,
           'tablename' => '',
@@ -292,7 +325,7 @@ class CrudGeneratorCommand extends Command
      *
      * @param $blacklist
      */
-    public function setBlacListAttribute($blacklist)
+    public function setBlackListAttribute($blacklist)
     {
         $this->blacklist = $blacklist;
     }
@@ -302,7 +335,7 @@ class CrudGeneratorCommand extends Command
      *
      * @return array
      */
-    public function getBlackiListAttribute()
+    public function getBlackListAttribute()
     {
         return $this->blacklist;
     }
@@ -413,8 +446,7 @@ class CrudGeneratorCommand extends Command
     protected function showWelcomeMessage()
     {
         $this->info('');
-        $this->info('****************************************************');
-        $this->info('* Lets generate because... Everything is awesome!  *');
+        $this->info('* Lets cook some files!                            *');
         $this->info('****************************************************');
         $this->info('');
     }
@@ -428,12 +460,7 @@ class CrudGeneratorCommand extends Command
         $this->info('****************************************************');
         $this->info('* Thanks for using larawesomecrud.                 *');
         $this->info('*                                                  *');
-        $this->info('* And remember...                                  *');
         $this->info('* Everything is AWESOME!                           *');
-        $this->info('*                                                  *');
-        $this->info('* o(0o;)o                                          *');
-        $this->info('*                                                  *');
-        $this->info('****************************************************');
         $this->info('');
     }
 }

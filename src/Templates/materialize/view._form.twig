@@ -1,0 +1,56 @@
+[% for column in columns %]
+[% if column.name not in ['id','created_at','updated_at','deleted_at'] %]
+<div class="row">
+    <div class="input-field col s12">
+
+        [% if column.type == 'id' %]
+        {!! Form::text('[[column.name]]', null, ['id' => '[[column.name]]', 'readonly' => 'readonly']) !!}
+        [% endif %]
+        [% if column.type == 'text' %]
+        {!! Form::text('[[column.name]]', null, ['id' => '[[column.name]]' ]) !!}
+        [% endif %]
+        [% if column.type == 'number' %]
+        {!! Form::number('[[column.name]]', null, ['id' => '[[column.name]]' ]) !!}
+        [% endif %]
+        [% if column.type == 'related' %]
+        {!! Form::label('[[column.name]]', '[[column.display]]:' ,['class'=>'active']) !!}
+        {!! Form::select('[[column.name]]', $[[model_singular]]->[[column.relatedName]]List ) !!}
+        @section('scripts')
+
+        @parent
+        <script type="text/javascript">
+          $(document).ready(function () {
+            $('#[[column.name]]').material_select();
+            //TODO Add select to the correct one
+          });
+        </script>
+        @endsection
+        [% endif %]
+        [% if column.type == 'date' %]
+        {!! Form::date('[[column.name]]', null, ['id' => '[[column.name]]', 'class'=>'datepicker' ]) !!}
+        [% endif %]
+
+        [% if column.type == 'datetime' %]
+        {!! Form::date('[[column.name]]', null, ['id' => '[[column.name]]' ]) !!}
+        [% endif %]
+
+        [% if column.type == 'textarea' %]
+        {!! Form::textarea('[[column.name]]', null, ['id' => '[[column.name]]', 'class' => 'materialize-textarea' ]) !!}
+        [% endif %]
+        [% if column.type == 'unknown' %]
+        {!! Form::text('[[column.name]]', null, ['id' => '[[column.name]]' ]) !!}
+        [% endif %]
+
+        [% if column.type != 'related' %]
+        {!! Form::label('[[column.name]]', '[[column.display]]:') !!}
+        [% endif %]
+
+
+        @if($errors->has('[[column.name]]'))
+        {!! Form::label('error-[[column.name]]', $errors->first('[[column.name]]'), ['class' => 'control-label
+        has-error']) !!}
+        @endif
+    </div>
+</div>
+[% endif %]
+[% endfor %]

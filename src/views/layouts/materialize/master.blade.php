@@ -262,7 +262,7 @@
         }
 
         .input-field.col label {
-            left: .5rem;
+            left: 1rem;
         }
 
         .form-panel {
@@ -310,10 +310,6 @@
             float: right;
         }
 
-        ul.pagination li.active {
-            background-color: #7986cb;
-        }
-
         .pagination li {
             height: 28px;
             font-size: 15px;
@@ -328,13 +324,13 @@
             /* same as theader*/
         }
 
-        /*input:not([type]), input[type=text], input[type=password], input[type=email], input[type=url], input[type=time], input[type=date], input[type=datetime], input[type=datetime-local], input[type=tel], input[type=number], input[type=search] {*/
-        /*margin: 0 0 .5rem 0;*/
-        /*}*/
+        input:not([type]), input[type=text], input[type=password], input[type=email], input[type=url], input[type=time], input[type=date], input[type=datetime], input[type=datetime-local], input[type=tel], input[type=number], input[type=search] {
+            margin: 0 0 .5rem 0;
+        }
 
-        /*textarea.materialize-textarea {*/
-        /*margin: 0 0 .5rem 0;*/
-        /*}*/
+        textarea.materialize-textar {
+            margin: 0 0 .5rem 0;
+        }
 
         .fixed-container {
             margin-left: 1rem;
@@ -386,7 +382,7 @@
             </ul>
 
         </div>
-        <div class="navbar-fixed">
+        <div class="navbar-fixed ">
             <nav class="indigo" role="navigation">
                 <div class="nav-wrapper fixed-container">
                     <div class="col s12 m12 l12">

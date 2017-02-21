@@ -6,13 +6,16 @@ use DB;
 use Artisan;
 use Illuminate\Console\Command;
 
-class CrudGeneratorFileCreator 
+
+class CrudGeneratorFileCreator
 {
     private $options;
     private $output;
     private $templateName;
     private $path;
     private $deletePrevious;
+    private $generateFromFolder;
+
 
     /**
      * New CrudGeneratorFileCreator instance.
@@ -23,20 +26,28 @@ class CrudGeneratorFileCreator
      * @param string $path
      * @param bool|false $deletePrevious
      */
-    public function __construct($options = [], $output = null, $templateName = '', $path = '', $deletePrevious = false)
-    {
+    public function __construct(
+      $options = [],
+      $output = null,
+      $templateName = '',
+      $path = '',
+      $deletePrevious = false,
+      $generateFromFolder = null
+    ) {
         $this->options = $options;
         $this->output = $output;
         $this->templateName = $templateName;
         $this->path = $path;
         $this->deletePrevious = $deletePrevious;
+        $this->generateFromFolder = $generateFromFolder;
     }
 
     public function Generate()
     {
-        $c = $this->renderWithData($this->customTemplateOfDefault($this->templateName), $this->options);
+        $c = $this->renderWithData($this->customTemplateOfDefault($this->templateName, $this->generateFromFolder),
+          $this->options);
         file_put_contents($this->path, $c);
-        $this->output->info('Created Controller: '.$this->path);
+        $this->output->info('Created Controller: ' . $this->path);
     }
 
     protected function renderWithData($template_path, $data)
@@ -51,9 +62,9 @@ class CrudGeneratorFileCreator
 
     protected function renderVariables($template, $data)
     {
-        $callback = function ($matches) use($data) {
+        $callback = function ($matches) use ($data) {
 
-            if(array_key_exists($matches[1], $data)) {
+            if (array_key_exists($matches[1], $data)) {
                 return $data[$matches[1]];
             }
 
@@ -66,25 +77,24 @@ class CrudGeneratorFileCreator
 
     protected function renderForeachs($template, $data)
     {
-        $callback = function ($matches) use($data) {
+        $callback = function ($matches) use ($data) {
             $rep = $matches[0];
             $rep = preg_replace('/\[\[\s*foreach:\s*(.+?)\s*\]\](\r?\n)?/s', '', $rep);
             $rep = preg_replace('/\[\[\s*endforeach\s*\]\](\r?\n)?/s', '', $rep);
             $ret = '';
 
-            if(array_key_exists($matches[1], $data) && is_array($data[$matches[1]])) {
+            if (array_key_exists($matches[1], $data) && is_array($data[$matches[1]])) {
                 $parent = $data[$matches[1]];
 
                 foreach ($parent as $i) {
                     $d = [];
 
-                    if(is_array($i)) {
+                    if (is_array($i)) {
 
                         foreach ($i as $key => $value) {
-                            $d['i.'.$key] = $value;
+                            $d['i.' . $key] = $value;
                         }
-                    }
-                    else {
+                    } else {
                         $d['i'] = $i;
                     }
                     $rep2 = $this->renderIFs($rep, array_merge($d, $data));
@@ -92,33 +102,33 @@ class CrudGeneratorFileCreator
                     $ret .= $rep2;
                 }
                 return $ret;
-            }
-            else {
-                return $mat;    
+            } else {
+                return $mat;
             }
         };
-        $template = preg_replace_callback('/\[\[\s*foreach:\s*(.+?)\s*\]\](\r?\n)?((?!endforeach).)*\[\[\s*endforeach\s*\]\](\r?\n)?/s', $callback, $template);
+        $template = preg_replace_callback('/\[\[\s*foreach:\s*(.+?)\s*\]\](\r?\n)?((?!endforeach).)*\[\[\s*endforeach\s*\]\](\r?\n)?/s',
+          $callback, $template);
 
         return $template;
     }
 
     protected function getValFromExpression($exp, $data)
     {
-        if(str_contains($exp, "'")) {
-            return trim($exp,"'");    
-        }
-        else {
+        if (str_contains($exp, "'")) {
+            return trim($exp, "'");
+        } else {
 
-            if(array_key_exists($exp, $data)) {
+            if (array_key_exists($exp, $data)) {
                 return $data[$exp];
+            } else {
+                return null;
             }
-            else return null;
         }
     }
 
     protected function renderIFs($template, $data)
     {
-        $callback = function ($matches) use($data) {
+        $callback = function ($matches) use ($data) {
             $rep = $matches[0];
             $rep = preg_replace('/\[\[\s*if:\s*(.+?)\s*([!=]=)\s*(.+?)\s*\]\](\r?\n)?/s', '', $rep);
             $rep = preg_replace('/\[\[\s*endif\s*\]\](\r?\n)?/s', '', $rep);
@@ -126,23 +136,40 @@ class CrudGeneratorFileCreator
             $val1 = $this->getValFromExpression($matches[1], $data);
             $val2 = $this->getValFromExpression($matches[3], $data);
 
-            if($matches[2] == '==' && $val1 == $val2) { $ret .= $rep; }
-            if($matches[2] == '!=' && $val1 != $val2) { $ret .= $rep; }
-            
+            if ($matches[2] == '==' && $val1 == $val2) {
+                $ret .= $rep;
+            }
+            if ($matches[2] == '!=' && $val1 != $val2) {
+                $ret .= $rep;
+            }
+
             return $ret;
         };
-        $template = preg_replace_callback('/\[\[\s*if:\s*(.+?)\s*([!=]=)\s*(.+?)\s*\]\](\r?\n)?((?!endif).)*\[\[\s*endif\s*\]\](\r?\n)?/s', $callback, $template);
+        $template = preg_replace_callback('/\[\[\s*if:\s*(.+?)\s*([!=]=)\s*(.+?)\s*\]\](\r?\n)?((?!endif).)*\[\[\s*endif\s*\]\](\r?\n)?/s',
+          $callback, $template);
 
         return $template;
     }
 
-    protected function customTemplateOfDefault($template_name)
+    protected function customTemplateOfDefault($template_name, $folder = null)
     {
-        $trypath = base_path().'/resources/templates/'.$template_name.'.tpl.php';
+        $trypath = base_path() . '/resources/templates/' . $template_name . '.tpl.php';
 
-        if(file_exists($trypath)) return $trypath;
+        if (file_exists($trypath)) {
+            return $trypath;
+        }
 
-        return __DIR__.'/Templates/'.$template_name.'.tpl.php';
+        if ((empty($folder)) || ($folder == null)) {
+            $folder = 'bootstrap';
+        }
+
+        //$this->output->info('Folder Name: ' . $folder);
+        //$this->output->info('Template Name: '. __DIR__ . '/Templates/' . $folder . '/' . $template_name . '.tpl.php' );
+        if (file_exists(__DIR__ . '/Templates/' . $folder . '/')) {
+            return __DIR__ . '/Templates/' . $folder . '/' . $template_name . '.tpl.php';
+        } else {
+            return __DIR__ . '/Templates/bootstrap/' . $template_name . '.tpl.php';
+        }
     }
 
     /**
@@ -193,6 +220,7 @@ class CrudGeneratorFileCreator
     public function setTemplateNameAttribute($templateName)
     {
         $this->templateName = $templateName;
+        //$this->output->info('Template Name Attribute: '.$templateName);
     }
 
     /**
@@ -244,4 +272,22 @@ class CrudGeneratorFileCreator
     {
         return $this->options;
     }
+
+    /**
+     *
+     * @return null
+     */
+    public function getGenerateFromFolder()
+    {
+        return $this->generateFromFolder;
+    }
+
+    /**
+     * @param null $generateFromFolder
+     */
+    public function setGenerateFromFolder($generateFromFolder)
+    {
+        $this->generateFromFolder = $generateFromFolder;
+    }
+
 }
