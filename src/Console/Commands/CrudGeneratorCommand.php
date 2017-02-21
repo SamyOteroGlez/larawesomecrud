@@ -458,7 +458,7 @@ class CrudGeneratorCommand extends Command
     {
         $this->info('');
         $this->info('****************************************************');
-        $this->info('* Thanks for using larawesomecrud.                 *');
+        $this->info('* Thanks for using laracreatecrud.                 *');
         $this->info('*                                                  *');
         $this->info('* Everything is AWESOME!                           *');
         $this->info('');
