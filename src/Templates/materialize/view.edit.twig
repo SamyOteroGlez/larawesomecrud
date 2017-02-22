@@ -4,18 +4,13 @@
 
 <!--<h2>[[model_uc]]</h2>-->
 <div role="group">
-    <a href="{{ url('[[route_path]]/') }}" class="waves-effect waves-light btn" role="button">
-        <i class="material-icons left">list</i>
+    <a href="{{ url('[[route_path]]/') }}" class="waves-effect waves-light btn btn-flat" role="button">
         List of {{ ucfirst('[[model_plural]]') }}
     </a>
-    <a href="{{ url('[[route_path]]/create') }}" class="btn btn-primary btn-sm" role="button">
-        <i class="material-icons left">list</i>
-        Create {{ ucfirst('[[model_uc]]') }}
-    </a>
-    <a href="{{route('[[route_path]].destroy', [$[[model_singular]]->id])}}" class="btn btn-danger btn-sm"
+    <a href="{{route('[[route_path]].destroy', [$[[model_singular]]->id])}}"
+       class="waves-effect waves-light btn btn-flat waves-red red-text"
        role="button"
        onclick="return doDelete({!! $[[model_singular]]->id !!})">
-        <i class="material-icons left">delete</i>
         Delete {{ ucfirst('[[model_uc]]') }}
     </a>
 </div>
@@ -37,16 +32,26 @@
     @include('[[model_plural]]._form')
 
     <div class="row">
-        <div class="col offset-s3 sm6">
-            <button type="submit" class="btn">
-                <i class="glyphicon glyphicon-ok"></i>
+        <div class="col s6 m4 l3">
+            <button type="submit" class="btn btn-flat primary-color-text wave-indigo">
                 Update
+            </button>
+        </div>
+        <div class="col s6 m4 l3">
+            <button type="button" class="btn btn-flat primary-color-text wave-indigo">
+                Cancel
             </button>
         </div>
     </div>
     {!! Form::close() !!}
 
+    <div class="fixed-action-btn">
+        <a class="btn-floating btn-large accent-color" title="Add {{ ucfirst('[[model_uc]]') }}"
+           href="{{ url('[[route_path]]/create') }}">
+            <i class="large material-icons">add</i>
+        </a>
 
+    </div>
 </div>
 
 @endsection

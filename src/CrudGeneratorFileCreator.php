@@ -10,11 +10,12 @@ use Illuminate\Console\Command;
 class CrudGeneratorFileCreator
 {
     private $options;
-    private $output;
+    private $cmdObject;
     private $templateName;
     private $path;
     private $deletePrevious;
-    private $generateFromFolder;
+    private $templateFolder;
+    private $templateEngine = null;
 
 
     /**
@@ -28,37 +29,46 @@ class CrudGeneratorFileCreator
      */
     public function __construct(
       $options = [],
-      $output = null,
+      $cmdObject = null,
       $templateName = '',
       $path = '',
       $deletePrevious = false,
-      $generateFromFolder = null
+      $templateFolder
     ) {
         $this->options = $options;
-        $this->output = $output;
+        $this->cmdObject = $cmdObject;
         $this->templateName = $templateName;
         $this->path = $path;
         $this->deletePrevious = $deletePrevious;
-        $this->generateFromFolder = $generateFromFolder;
+        $this->templateFolder = $templateFolder;
+        $this->cmdObject->info('FileCreator Constructor ' . $templateFolder);
     }
 
-    public function Generate()
+    public function Generate($templateName)
     {
-        $c = $this->renderWithData($this->customTemplateOfDefault($this->templateName, $this->generateFromFolder),
-          $this->options);
-        file_put_contents($this->path, $c);
-        $this->output->info('Created Controller: ' . $this->path);
+        $this->cmdObject->info('Template Name: ' . $templateName);
+        $loader = new \Twig_Loader_Filesystem($this->templateFolder);
+
+        $this->templateEngine = new \Twig_Environment($loader, array(
+          'cache' => false,
+          'debug' => true,
+          'optimization' => false
+        ));
+        $lexer = new \Twig_Lexer($this->templateEngine, array(
+          'tag_comment' => array('[#', '#]'),
+          'tag_block' => array('[%', '%]'),
+          'tag_variable' => array('[[', ']]'),
+          'interpolation' => array('#[', ']'),
+        ));
+        $this->templateEngine->setLexer($lexer);
+
+        $renderedContent = $this->templateEngine->render($templateName . '.twig', $this->options);
+
+        file_put_contents($this->path, $renderedContent);
+
+        //$this->output->info('Created Controller: ' . $this->path);
     }
 
-    protected function renderWithData($template_path, $data)
-    {
-        $template = file_get_contents($template_path);
-        $template = $this->renderForeachs($template, $data);
-        $template = $this->renderIFs($template, $data);
-        $template = $this->renderVariables($template, $data);
-
-        return $template;
-    }
 
     protected function renderVariables($template, $data)
     {
@@ -103,7 +113,7 @@ class CrudGeneratorFileCreator
                 }
                 return $ret;
             } else {
-                return $mat;
+                return $ret;
             }
         };
         $template = preg_replace_callback('/\[\[\s*foreach:\s*(.+?)\s*\]\](\r?\n)?((?!endforeach).)*\[\[\s*endforeach\s*\]\](\r?\n)?/s',
@@ -151,25 +161,10 @@ class CrudGeneratorFileCreator
         return $template;
     }
 
-    protected function customTemplateOfDefault($template_name, $folder = null)
+    protected function getCompleteTemplateName($template_name, $folder = null)
     {
-        $trypath = base_path() . '/resources/templates/' . $template_name . '.tpl.php';
 
-        if (file_exists($trypath)) {
-            return $trypath;
-        }
-
-        if ((empty($folder)) || ($folder == null)) {
-            $folder = 'bootstrap';
-        }
-
-        //$this->output->info('Folder Name: ' . $folder);
-        //$this->output->info('Template Name: '. __DIR__ . '/Templates/' . $folder . '/' . $template_name . '.tpl.php' );
-        if (file_exists(__DIR__ . '/Templates/' . $folder . '/')) {
-            return __DIR__ . '/Templates/' . $folder . '/' . $template_name . '.tpl.php';
-        } else {
-            return __DIR__ . '/Templates/bootstrap/' . $template_name . '.tpl.php';
-        }
+        return $folder . '/' . $template_name . '.twig';
     }
 
     /**
@@ -240,7 +235,7 @@ class CrudGeneratorFileCreator
      */
     public function setOutputAttribute($output)
     {
-        $this->output = $output;
+        $this->cmdObject = $output;
     }
 
     /**
@@ -250,7 +245,7 @@ class CrudGeneratorFileCreator
      */
     public function getOutputAttribute()
     {
-        return $this->output;
+        return $this->cmdObject;
     }
 
     /**
@@ -277,17 +272,17 @@ class CrudGeneratorFileCreator
      *
      * @return null
      */
-    public function getGenerateFromFolder()
+    public function getTemplateFolder()
     {
-        return $this->generateFromFolder;
+        return $this->templateFolder;
     }
 
     /**
-     * @param null $generateFromFolder
+     * @param null $templateFolder
      */
-    public function setGenerateFromFolder($generateFromFolder)
+    public function setTemplateFolder($templateFolder)
     {
-        $this->generateFromFolder = $generateFromFolder;
+        $this->templateFolder = $templateFolder;
     }
 
 }

@@ -47,8 +47,8 @@
 
 
         @if($errors->has('[[column.name]]'))
-        {!! Form::label('error-[[column.name]]', $errors->first('[[column.name]]'), ['class' => 'control-label
-        has-error']) !!}
+        {!! Form::label('[[column.name]]', '[[column.display]]:',['data-error' => $errors->first('[[column.name]]')] )
+        !!}
         @endif
     </div>
 </div>

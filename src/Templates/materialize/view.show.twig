@@ -3,21 +3,14 @@
 @section('content')
 
 <div class="btn-group" role="group">
-    <a href="{{ url('[[route_path]]/') }}" class="btn btn-primary btn-sm" role="button">
-        <i class="material-icons left">list</i>
+    <a href="{{ url('[[route_path]]/') }}" class="btn btn-flat" role="button">
         List of {{ ucfirst('[[model_plural]]') }}
     </a>
-    <a href="{{ url('[[route_path]]/create') }}" class="btn btn-primary btn-sm" role="button">
-        <i class="material-icons left">add</i>
-        Create {{ ucfirst('[[model_uc]]') }}
-    </a>
-    <a href="{{route('[[route_path]].edit', [$[[model_singular]]->id])}}" class="btn btn-warning btn-sm" role="button">
-        <i class="material-icons left">mode_edit</i>
+    <a href="{{route('[[route_path]].edit', [$[[model_singular]]->id])}}" class="btn btn-flat" role="button">
         Update {{ ucfirst('[[model_uc]]') }}
     </a>
-    <a href="{{route('[[route_path]].destroy', [$[[model_singular]]->id])}}" class="btn btn-danger btn-sm" role="button"
+    <a href="{{route('[[route_path]].destroy', [$[[model_singular]]->id])}}" class="btn btn-flat red-text" role="button"
        onclick="return doDelete({!! $[[model_singular]]->id !!})">
-        <i class="material-icons left">delete</i>
         Delete {{ ucfirst('[[model_uc]]') }}
     </a>
 </div>
@@ -36,11 +29,11 @@
             [% if column.type=='id' %]
             {!! Form::text('[[column.name]]', $[[model_singular]]->[[column.name]], ['readonly' => 'readonly'])!!}
             [% endif %]
-            [% if column.type=='text'%]
+            [% if column.type=='text' %]
             {!! Form::text('[[column.name]]', $[[model_singular]]->[[column.name]], [ 'readonly' => 'readonly'])!!}
             [% endif %]
 
-            [% if column.type=='number'%]
+            [% if column.type=='number' %]
             {!! Form::number('[[column.name]]', $[[model_singular]]->[[column.name]], [ 'readonly' => 'readonly'])!!}
             [% endif %]
 
@@ -55,7 +48,7 @@
             [% endif %]
 
 
-            [% if column.type=='textarea'%]
+            [% if column.type=='textarea' %]
             {!! Form::textarea('[[column.name]]', $[[model_singular]]->[[column.name]], ['class' =>
             'materialize-textarea', 'readonly' => 'readonly'])!!}
             [% endif %]
@@ -66,12 +59,19 @@
 
         </div>
     </div>
+
     [% endif %]
 
     [% endfor %]
-
     {!! Form::close() !!}
 
+    <div class="fixed-action-btn">
+        <a class="btn-floating btn-large amber" title="Add {{ ucfirst('[[model_uc]]') }}"
+           href="{{ url('[[route_path]]/create') }}">
+            <i class="large material-icons">add</i>
+        </a>
+
+    </div>
 </div>
 @endsection
 @section('scripts')

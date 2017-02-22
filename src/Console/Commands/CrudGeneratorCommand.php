@@ -5,7 +5,6 @@ namespace CrudGenerator\Console\Commands;
 use DB;
 use Artisan;
 use Illuminate\Console\Command;
-use Psy\Exception\ErrorException;
 use Illuminate\Container\Container;
 use CrudGenerator\CrudGeneratorService as Generator;
 
@@ -18,7 +17,7 @@ class CrudGeneratorCommand extends Command
     private $custom_controller;
     private $formrequest;
     private $dashboard;
-    private $generateFromFolder;
+    private $templateFolder;
 
     /**
      * The name and signature of the console command.
@@ -33,7 +32,7 @@ class CrudGeneratorCommand extends Command
         {--r|--formrequest : Generates the form request}
         {--f|--force : Force to generate the CRUD}
         {--m|--dashboard-menu : Generates the links in the dashboard menu}
-        {--t|--base-template= : Use a specific base template to generate (materialize or bootstrap)}
+        {--t|--theme= : Use a specific base template to generate (materialize or bootstrap)}
         {--l|--master-layout= : Use a particular layout}
         {--c|--custom-controller= : Generate the views and the controller only}
         {--black-list : Show the ignored tables}';
@@ -64,6 +63,7 @@ class CrudGeneratorCommand extends Command
           'migrations',
           'password_resets',
         ];
+        $this->templateFolder = 'materialize';
     }
 
     /**
@@ -77,6 +77,7 @@ class CrudGeneratorCommand extends Command
         }
         return json_decode(json_encode($objects), true);
     }
+
     /**
      * Execute the console command.
      *
@@ -104,10 +105,19 @@ class CrudGeneratorCommand extends Command
         if ('dashboard-menu' == $this->option('dashboard-menu')) {
             $this->dashboard = true;
         }
+//Check if customer template folder exists if not check if there is a custom theme to be used
+        if (is_dir(base_path() . '/resources/templates/')) {
+            $this->templateFolder = base_path() . '/resources/templates/';
+        } else {
+            $this->templateFolder = realpath(__DIR__ . '/../../Templates/materialize/');
 
-        $this->generateFromFolder = $this->option('base-template');
-
-        //$this->info('Base Template: '.$this->generateFromFolder);
+            if ($this->option('theme')) {
+                if (is_dir(realpath(__DIR__ . '/../../Templates/' . $this->option('theme')))) {
+                    $this->templateFolder = realpath(__DIR__ . '/../../Templates/' . $this->option('theme'));
+                }
+            }
+        }
+        $this->Info('Template Folder:' . $this->templateFolder);
 
         $pretables = $this->ArrayOfObjectsToArray(DB::select("show tables"));
 
@@ -142,6 +152,7 @@ class CrudGeneratorCommand extends Command
                 $this->formrequest = $modelName . 'FormRequest';
             }
 
+
             $generator = new Generator(
               $this,
               Container::getInstance()->getNamespace(),
@@ -156,13 +167,14 @@ class CrudGeneratorCommand extends Command
               null,
               null,
               $this->dashboard,
-              $this->generateFromFolder
+              $this->templateFolder
             );
 
             $generator->Generate();
         }
 
         $this->showByeByeMessage();
+        return;
     }
 
     /**
@@ -446,7 +458,7 @@ class CrudGeneratorCommand extends Command
     protected function showWelcomeMessage()
     {
         $this->info('');
-        $this->info('* Lets cook some files!                            *');
+        $this->info('* Lets create some files!                            *');
         $this->info('****************************************************');
         $this->info('');
     }
@@ -457,10 +469,10 @@ class CrudGeneratorCommand extends Command
     protected function showByeByeMessage()
     {
         $this->info('');
+        $this->info('* Done creating files                              *');
+
         $this->info('****************************************************');
         $this->info('* Thanks for using laracreatecrud.                 *');
-        $this->info('*                                                  *');
-        $this->info('* Everything is AWESOME!                           *');
         $this->info('');
     }
 }

@@ -42,6 +42,39 @@
             background-color: #e4e7f6;
         }
 
+        .primary-color {
+            background-color: #3f51b5;
+        }
+
+        .primary-color-light {
+            background-color: #7280ce;
+        }
+
+        .primary-color-dark {
+            background-color: #2b387c;
+        }
+
+        .accent-color {
+            background-color: #ffc107;
+        }
+
+        .primary-color-text {
+            color: #3f51b5;
+        }
+
+        .primary-color-light-text {
+            color: #7280ce;
+        }
+
+        .primary-color-dark-text {
+            color: #2b387c;
+        }
+
+        .accent-color-text {
+            color: #ffc107;
+        }
+
+
         .side-nav {
             width: 240px;
             background-color: #0a0d1e;
@@ -187,19 +220,19 @@
 
         td {
             color: #212121;
-            font-size: 16px;
+            font-size: 13px;
             font-weight: 400;
         }
 
         thead {
             color: #7a7a7a;
-            font-size: 15px;
+            font-size: 12px;
             font-weight: 500;
         }
 
         thead a {
             color: #7a7a7a;
-            font-size: 15px;
+            font-size: 12px;
             font-weight: 500;
         }
 
@@ -285,7 +318,7 @@
             margin-top: 0.5rem;
             margin-bottom: 0.5rem;
             font-weight: 300;
-            font-size: 2rem;
+            font-size: 1.25rem;
         }
 
         .row {
@@ -416,7 +449,7 @@
     <footer class="page-footer fixed indigo">
         <div class="footer-copyright ">
             <div class="container">
-                <p><i class="material-icons">copyright</i> 2017; Made by SomeOne</p>
+                <p><?= config('app.name')?> - <i class="material-icons">copyright</i> 2017 - All Rights Reserved</p>
             </div>
         </div>
     </footer>

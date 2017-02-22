@@ -45,6 +45,7 @@
             padding-top: 50px;
         }
 
+
         /*
          * Global add-ons
          */
@@ -70,7 +71,6 @@
         .sidebar {
             display: none;
         }
-
         @media (min-width: 768px) {
             .sidebar {
                 position: fixed;
@@ -93,18 +93,17 @@
             margin-bottom: 20px;
             margin-left: -20px;
         }
-
         .nav-sidebar > li > a {
             padding-right: 20px;
             padding-left: 20px;
         }
-
         .nav-sidebar > .active > a,
         .nav-sidebar > .active > a:hover,
         .nav-sidebar > .active > a:focus {
             color: #fff;
             background-color: #428bca;
         }
+
 
         /*
          * Main content
@@ -113,17 +112,16 @@
         .main {
             padding: 20px;
         }
-
         @media (min-width: 768px) {
             .main {
                 padding-right: 40px;
                 padding-left: 40px;
             }
         }
-
         .main .page-header {
             margin-top: 0;
         }
+
 
         /*
          * Placeholder dashboard ideas
@@ -133,15 +131,12 @@
             margin-bottom: 30px;
             text-align: center;
         }
-
         .placeholders h4 {
             margin-bottom: 0;
         }
-
         .placeholder {
             margin-bottom: 20px;
         }
-
         .placeholder img {
             display: inline-block;
             border-radius: 50%;
@@ -178,7 +173,7 @@
 
 
             @yield('content')
-
+         
         </div>
     </div>
 </div>

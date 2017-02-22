@@ -6,7 +6,7 @@
     <h3>List of {{ ucfirst('[[model_plural]]') }}</h3>
 
     @if(!$[[model_plural]]->isEmpty())
-    <table class="table highlight" id="tbl-datatable">
+    <table class="highlight bordered" id="tbl-datatable">
         <thead>
         <tr>
             [% for key, column in columns %]
@@ -31,12 +31,12 @@
             [% endfor %]
             <td>
                 <a href="{{route('[[route_path]].destroy', [$[[model_singular]]->id])}}"
-                   title="Delete" class="btn btn-flat btn-small right "
+                   title="Delete" class="btn btn-flat btn-small right red-text"
                    onclick="return doDelete({!! $[[model_singular]]->id !!})"><i class="material-icons">delete</i></a>
                 <a href="{{route('[[route_path]].edit', [$[[model_singular]]->id])}}"
-                   title="Edit" class="btn btn-flat btn-small raised right"><i class="material-icons">mode_edit</i></a>
+                   title="Edit" class="btn btn-flat btn-small right"><i class="material-icons">mode_edit</i></a>
                 <a href="{{route('[[route_path]].show', [$[[model_singular]]->id])}}" title="View"
-                   class="btn btn-flat btn-small right raised"><i class="material-icons">visibility</i></a>
+                   class="btn btn-flat btn-small right "><i class="material-icons">visibility</i></a>
             </td>
 
         </tr>

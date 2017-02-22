@@ -8,7 +8,6 @@ namespace CrudGenerator;
 
 use DB;
 use Artisan;
-use Faker\Provider\File;
 use Illuminate\Console\Command;
 use CrudGenerator\CrudGeneratorFileCreator as FileCreator;
 
@@ -31,14 +30,13 @@ class CrudGeneratorService
     private $viewFolderName = '';
     private $fileCreator;
     private $dashboard;
-    private $generateFromFolder = null;
-    private $templateEngine = null;
+    private $templateFolder = null;
     private $options = null;
 
     /**
      * New CrudGeneratorService instance.
      *
-     * @param null $output
+     * @param null $cmdObject
      * @param string $appNamespace
      * @param string $modelName
      * @param string $tableName
@@ -52,7 +50,7 @@ class CrudGeneratorService
      * @param string $viewFolderName
      */
     public function __construct(
-      $output = null,
+      $cmdObject = null,
       $appNamespace = 'App',
       $modelName = '',
       $tableName = '',
@@ -65,9 +63,10 @@ class CrudGeneratorService
       $dashboard = false,
       $existingModel = '',
       $viewFolderName = '',
-      $generateFromFolder = 'bootstrap'
+      $templateFolder = null
+
     ) {
-        $this->commandObject = $output;
+        $this->commandObject = $cmdObject;
         $this->appNamespace = $appNamespace;
         $this->modelName = $modelName;
         $this->tableName = $tableName;
@@ -80,10 +79,27 @@ class CrudGeneratorService
         $this->existingModel = $existingModel;
         $this->viewFolderName = $viewFolderName;
         $this->dashboard = $dashboard;
-        $this->generateFromFolder = $generateFromFolder;
+        $this->templateFolder = $templateFolder;
 
-        $this->fileCreator = new FileCreator();
+        $this->fileCreator = new FileCreator([], $cmdObject, '', '', $force, $templateFolder);
+//        $this->fileCreator = new FileCreator([], $cmdObject, '', '', $force, $templateFolder);
         //$this->commandObject->info('Created with generate from folder: '.$this->generateFromFolder);
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getTemplateFolder()
+    {
+        return $this->templateFolder;
+    }
+
+    /**
+     * @param null|string $templateFolder
+     */
+    public function setTemplateFolder($templateFolder)
+    {
+        $this->templateFolder = $templateFolder;
     }
 
     /**
@@ -91,6 +107,7 @@ class CrudGeneratorService
      */
     public function Generate()
     {
+
         $modelname = ucfirst(str_singular($this->modelName));
         $this->viewFolderName = strtolower($this->controllerName);
 
@@ -148,6 +165,7 @@ class CrudGeneratorService
         ];
 
         $this->deletePreviousFiles($options['tablename']);
+
         $columns = $this->createModel($modelname, $this->prefix, $this->tableName);
 
         $options['columns'] = $columns;
@@ -158,22 +176,10 @@ class CrudGeneratorService
         $this->createViewDirectory();
         $this->createApiDirectory();
         $this->options = $options;
-
+        $this->commandObject->info('--->About to prepare FC');
         $this->prepareFileCreator($this->options);
+        $this->commandObject->info('-->About To Gen First File');
 
-        $loader = new \Twig_Loader_Filesystem(__DIR__ . '/Templates/' . $this->generateFromFolder . '/');
-        $this->templateEngine = new \Twig_Environment($loader, array(
-          'cache' => false,
-          'debug' => true,
-          'optimization' => false
-        ));
-        $lexer = new \Twig_Lexer($this->templateEngine, array(
-          'tag_comment' => array('[#', '#]'),
-          'tag_block' => array('[%', '%]'),
-          'tag_variable' => array('[[', ']]'),
-          'interpolation' => array('#[', ']'),
-        ));
-        $this->templateEngine->setLexer($lexer);
 
         if (false !== $this->formRequest) {
             $options['formrequest'] = $modelname . 'FormRequest';
@@ -217,8 +223,7 @@ class CrudGeneratorService
     protected function createDashboardMenuPartial()
     {
         $this->createFiles(
-          '_menu',
-          base_path() . '/resources/views/dashboard/_menu.blade.php'
+          '_menu', base_path() . '/resources/views/dashboard/_menu.blade.php', $this->templateFolder
         );
     }
 
@@ -272,7 +277,7 @@ class CrudGeneratorService
         $this->fileCreator->setOptionsAttribute($options);
         $this->fileCreator->setOutputAttribute($this->commandObject);
         //$this->commandObject->info('Prepare-- Folder: '.$this->generateFromFolder);
-        $this->fileCreator->setGenerateFromFolder($this->generateFromFolder);
+        $this->fileCreator->setTemplateFolder($this->templateFolder);
 
     }
 
@@ -332,8 +337,7 @@ class CrudGeneratorService
     protected function generateFormRequestClassFile($modelName)
     {
         $this->createFiles(
-          'formrequest',
-          app_path() . '/Http/Requests/' . $modelName . 'FormRequest.php'
+          'formrequest', app_path() . '/Http/Requests/' . $modelName . 'FormRequest.php', $this->templateFolder
         );
 
         $this->commandObject->info('FormRequest Name: ' . $modelName . 'FormRequest');
@@ -345,16 +349,16 @@ class CrudGeneratorService
     protected function generateControllerClassFile()
     {
         $this->createFiles(
-          'controller',
-          app_path() . '/Http/Controllers/' . $this->controllerName . 'Controller.php'
+          'controller', app_path() . '/Http/Controllers/' . $this->controllerName . 'Controller.php',
+          $this->templateFolder
         );
     }
 
     protected function generateApiControllerClassFile()
     {
         $this->createFiles(
-          'api_controller',
-          app_path() . '/Http/Controllers/Api/' . $this->apiControllerName . 'Controller.php'
+          'api_controller', app_path() . '/Http/Controllers/Api/' . $this->apiControllerName . 'Controller.php',
+          $this->templateFolder
         );
 
     }
@@ -365,9 +369,12 @@ class CrudGeneratorService
      */
     protected function generateCreateViewFile()
     {
+//        $info = $this->templateEngine->render('view.create.twig', $this->options);
+//        file_put_contents(base_path() . '/resources/views/' . $this->viewFolderName . '/create.blade.php', $info);
+
         $this->createFiles(
-          'view.create',
-          base_path() . '/resources/views/' . $this->viewFolderName . '/create.blade.php'
+          'view.create', base_path() . '/resources/views/' . $this->viewFolderName . '/create.blade.php',
+          $this->templateFolder
         );
     }
 
@@ -376,13 +383,12 @@ class CrudGeneratorService
      */
     protected function generateShowViewFile()
     {
-        $info = $this->templateEngine->render('view.show.twig', $this->options);
-
-        file_put_contents(base_path() . '/resources/views/' . $this->viewFolderName . '/show.blade.php', $info);
-//        $this->createFiles(
-//          'view.show',
-//          base_path() . '/resources/views/' . $this->viewFolderName . '/show.blade.php'
-//        );
+//        $info = $this->templateEngine->render('view.show.twig', $this->options);
+//        file_put_contents(base_path() . '/resources/views/' . $this->viewFolderName . '/show.blade.php', $info);
+        $this->createFiles(
+          'view.show', base_path() . '/resources/views/' . $this->viewFolderName . '/show.blade.php',
+          $this->templateFolder
+        );
     }
 
     /**
@@ -390,23 +396,24 @@ class CrudGeneratorService
      */
     protected function generateEditViewFile()
     {
+//        $info = $this->templateEngine->render('view.edit.twig', $this->options);
+//        file_put_contents(base_path() . '/resources/views/' . $this->viewFolderName . '/edit.blade.php', $info);
         $this->createFiles(
-          'view.edit',
-          base_path() . '/resources/views/' . $this->viewFolderName . '/edit.blade.php'
+          'view.edit', base_path() . '/resources/views/' . $this->viewFolderName . '/edit.blade.php',
+          $this->templateFolder
         );
     }
 
     protected function generateFormViewFile()
     {
-        $info = $this->templateEngine->render('view._form.twig', $this->options);
+//        $info = $this->templateEngine->render('view._form.twig', $this->options);
+//        file_put_contents(base_path() . '/resources/views/' . $this->viewFolderName . '/_form.blade.php', $info);
 
-        file_put_contents(base_path() . '/resources/views/' . $this->viewFolderName . '/_form.blade.php', $info);
 
-
-//        $this->createFiles(
-//          'view._form',
-//          base_path() . '/resources/views/' . $this->viewFolderName . '/_form.blade.php'
-//        );
+        $this->createFiles(
+          'view._form', base_path() . '/resources/views/' . $this->viewFolderName . '/_form.blade.php',
+          $this->templateFolder
+        );
     }
 
     /**
@@ -414,29 +421,29 @@ class CrudGeneratorService
      */
     protected function generateIndexViewFile()
     {
-        $info = $this->templateEngine->render('view.index.twig', $this->options);
+//        $info = $this->templateEngine->render('view.index.twig', $this->options);
+//        file_put_contents(base_path() . '/resources/views/' . $this->viewFolderName . '/index.blade.php', $info);
 
-        file_put_contents(base_path() . '/resources/views/' . $this->viewFolderName . '/index.blade.php', $info);
 
-
-//        $this->createFiles(
-//          'view.index',
-//          base_path() . '/resources/views/' . $this->viewFolderName . '/index.blade.php'
-//        );
+        $this->createFiles(
+          'view.index', base_path() . '/resources/views/' . $this->viewFolderName . '/index.blade.php',
+          $this->templateFolder
+        );
     }
 
     /**
      * Generate the file according the template name and the path.
      *
      * @param $templateName
-     * @param $path
+     * @param $completeFilename
+     * @param $templateFolder
      */
-    protected function createFiles($templateName, $path)
+    protected function createFiles($templateName, $completeFilename, $templateFolder)
     {
 
         $this->fileCreator->setTemplateNameAttribute($templateName);
-        $this->fileCreator->setPathAttribute($path);
-        $this->fileCreator->Generate();
+        $this->fileCreator->setPathAttribute($completeFilename);
+        $this->fileCreator->Generate($templateName);
     }
 
     /**

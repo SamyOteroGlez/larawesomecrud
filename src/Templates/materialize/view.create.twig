@@ -1,0 +1,43 @@
+@extends('[[custom_master]]')
+
+@section('content')
+
+
+<div class="btn-group" role="group">
+    <a href="{{ url('[[route_path]]/') }}" class="btn btn-flat" role="button">
+        <i class="glyphicon glyphicon-th-list"></i>
+        List of {{ ucfirst('[[model_plural]]') }}
+    </a>
+</div>
+<div class="clearfix">
+</div>
+
+<div class="form-panel">
+    <h3>Create [[model_uc]]</h3>
+
+
+    {!! Form::model($[[model_singular]], ['url' => '[[route_path]]']) !!}
+
+    {{ csrf_field() }}
+
+    @include('[[model_plural]]._form')
+
+    <div class="row">
+        <div class="col s6 m4 l3">
+            <button type="submit" class="btn btn-flat primary-color-text wave-indigo">
+                Save
+            </button>
+        </div>
+        <div class="col s6 m4 l3">
+            <button type="button" class="btn btn-flat primary-color-text wave-indigo">
+                Cancel
+            </button>
+        </div>
+    </div>
+
+
+    {!! Form::close() !!}
+
+</div>
+
+@endsection

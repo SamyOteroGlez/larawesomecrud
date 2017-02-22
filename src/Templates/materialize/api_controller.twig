@@ -1,11 +1,12 @@
 <?php
-
-namespace [[appns]]Http\Controllers;
+//TODO Finish api template
+namespace [[appns]]Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 
-[[requestPath]]
-
+[% if formrequest != false %]
+use [[appns]]Http\Requests\[[formrequest]];
+[% endif %]
 use [[appns]]Http\Controllers\Controller;
 
 use [[appns]][[model_uc]];
@@ -24,16 +25,17 @@ class [[controller_name]]Controller extends Controller
 
     public function index()
 	{
-		$[[model_singular]] = $this->model->paginate();
+$[[model_singular]] = $this->model->all();
 
-	    return view('[[view_folder]].index', [
-			'model' => $[[model_singular]]
-		]);
+
+return json_encode([ 'data' => $[[model_singular]] ]);
+
+
 	}
 
 	public function create()
 	{
-		$[[model_singular]] = $this->model->newInstance();
+$[[model_singular]] = $this->model->create();
 
 	    return view('[[view_folder]].create', [
 			'model' => $[[model_singular]]
@@ -42,7 +44,7 @@ class [[controller_name]]Controller extends Controller
 
 	public function store([[formrequest]] $request)
 	{
-		$[[model_singular]] = $this->model->newInstance();
+$[[model_singular]] = $this->model->create();
 		$[[model_singular]]->fill($request->all());
 		$[[model_singular]]->save();
 
