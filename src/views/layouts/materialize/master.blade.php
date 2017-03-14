@@ -42,39 +42,6 @@
             background-color: #e4e7f6;
         }
 
-        .primary-color {
-            background-color: #3f51b5;
-        }
-
-        .primary-color-light {
-            background-color: #7280ce;
-        }
-
-        .primary-color-dark {
-            background-color: #2b387c;
-        }
-
-        .accent-color {
-            background-color: #ffc107;
-        }
-
-        .primary-color-text {
-            color: #3f51b5;
-        }
-
-        .primary-color-light-text {
-            color: #7280ce;
-        }
-
-        .primary-color-dark-text {
-            color: #2b387c;
-        }
-
-        .accent-color-text {
-            color: #ffc107;
-        }
-
-
         .side-nav {
             width: 240px;
             background-color: #0a0d1e;
@@ -220,19 +187,19 @@
 
         td {
             color: #212121;
-            font-size: 13px;
+            font-size: 16px;
             font-weight: 400;
         }
 
         thead {
             color: #7a7a7a;
-            font-size: 12px;
+            font-size: 15px;
             font-weight: 500;
         }
 
         thead a {
             color: #7a7a7a;
-            font-size: 12px;
+            font-size: 15px;
             font-weight: 500;
         }
 
@@ -295,7 +262,7 @@
         }
 
         .input-field.col label {
-            left: .5rem;
+            left: 1rem;
         }
 
         .form-panel {
@@ -318,7 +285,7 @@
             margin-top: 0.5rem;
             margin-bottom: 0.5rem;
             font-weight: 300;
-            font-size: 1.25rem;
+            font-size: 2rem;
         }
 
         .row {
@@ -343,10 +310,6 @@
             float: right;
         }
 
-        ul.pagination li.active {
-            background-color: #7986cb;
-        }
-
         .pagination li {
             height: 28px;
             font-size: 15px;
@@ -361,13 +324,13 @@
             /* same as theader*/
         }
 
-        /*input:not([type]), input[type=text], input[type=password], input[type=email], input[type=url], input[type=time], input[type=date], input[type=datetime], input[type=datetime-local], input[type=tel], input[type=number], input[type=search] {*/
-        /*margin: 0 0 .5rem 0;*/
-        /*}*/
+        input:not([type]), input[type=text], input[type=password], input[type=email], input[type=url], input[type=time], input[type=date], input[type=datetime], input[type=datetime-local], input[type=tel], input[type=number], input[type=search] {
+            margin: 0 0 .5rem 0;
+        }
 
-        /*textarea.materialize-textarea {*/
-        /*margin: 0 0 .5rem 0;*/
-        /*}*/
+        textarea.materialize-textar {
+            margin: 0 0 .5rem 0;
+        }
 
         .fixed-container {
             margin-left: 1rem;
@@ -419,7 +382,7 @@
             </ul>
 
         </div>
-        <div class="navbar-fixed">
+        <div class="navbar-fixed ">
             <nav class="indigo" role="navigation">
                 <div class="nav-wrapper fixed-container">
                     <div class="col s12 m12 l12">
@@ -449,7 +412,7 @@
     <footer class="page-footer fixed indigo">
         <div class="footer-copyright ">
             <div class="container">
-                <p><?= config('app.name')?> - <i class="material-icons">copyright</i> 2017 - All Rights Reserved</p>
+                <p><i class="material-icons">copyright</i> 2017; Made by SomeOne</p>
             </div>
         </div>
     </footer>

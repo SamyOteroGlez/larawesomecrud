@@ -1,0 +1,34 @@
+[% for column in columns %]
+<div class="form-group {{ $errors->has('[[column.name]]') ? 'has-error' : ''}}">
+    {!! Form::label('[[column.name]]', '[[column.display]]:', ['class' => 'col-sm-3 control-label']) !!}
+    <div class="col-sm-6">
+        [% if column.type=='id' %]
+        {!! Form::text('[[column.name]]', null, ['id' => '[[column.name]]', 'class' => 'form-control', 'readonly' =>
+        'readonly']) !!}
+        [% endif %]
+        [% if column.type=='text' %]
+        {!! Form::text('[[column.name]]', null, ['id' => '[[column.name]]', 'class' => 'form-control']) !!}
+        [% endif %]
+        [% if column.type=='number' %]
+        {!! Form::number('[[column.name]]', null, ['id' => '[[column.name]]', 'class' => 'form-control']) !!}
+        [% endif %]
+        [% if column.type=='related' %]
+        {!! Form::select('[[column.name]]', $[[model_singular]]->[[column.relatedName]]List, null, ['placeholder' =>
+        'Please select:', 'class' => 'form-control']) !!}
+        [% endif %]
+        [% if column.type=='date' %]
+        {!! Form::date('[[column.name]]', null, ['id' => '[[column.name]]', 'class' => 'form-control']) !!}
+        [% endif %]
+        [% if column.type=='textarea' %]
+        {!! Form::textarea('[[column.name]]', null, ['id' => '[[column.name]]', 'class' => 'form-control']) !!}
+        [% endif %]
+        [% if column.type=='unknown' %]
+        {!! Form::text('[[column.name]]', null, ['id' => '[[column.name]]', 'class' => 'form-control']) !!}
+        [% endif %]
+        @if($errors->has('[[column.name]]'))
+        {!! Form::label('error-[[column.name]]', $errors->first('[[column.name]]'), ['class' => 'control-label
+        has-error']) !!}
+        @endif
+    </div>
+</div>
+[% endfor %]
