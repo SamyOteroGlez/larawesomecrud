@@ -9,23 +9,23 @@ return [
     /**
      * Laravel version
      */
-    "laravelVersion" => "",
+    "laravelVersion" => "testVersion",
     
     /**
      * Here we define the paths
      */
-    "modelPath" => "",
+    "modelPath" => "testmodelpath",
         
-    "controllerPath" => "",
+    "controllerPath" => "testcontrollerpath",
 
-    "formRequestPath" => "",
+    "formRequestPath" => "testformrequestpath",
 
-    "viewsPath" => "",
+    "viewsPath" => "testviewspath",
 
-    "routePath" => "",
+    "routePath" => "testroutepath",
     
     /**
      * Ignored tables
      */
-    "blacklist" => [],
+    "blacklist" => ['testblacklist'],
 ];

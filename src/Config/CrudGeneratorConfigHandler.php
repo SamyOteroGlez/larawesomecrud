@@ -3,7 +3,7 @@
 namespace CrudGenerator\Config;
 
 use App;
-use CrudGeneratorConfigFileHandler;
+use CrudGenerator\Config\CrudGeneratorConfigFileHandler;
 
 /*
  * Api to interact with the config.php file
@@ -18,9 +18,14 @@ class CrudGeneratorConfigHandler
 {
     protected $config;
     
-    public function __construct(CrudGeneratorConfigFileHandler $config)
+    public function __construct()
     {
-        $this->config = $config->newInstance();
+        $this->config = CrudGeneratorConfigFileHandler::newInstance();
+    }
+    
+    static public function newInstance()
+    {
+        return new CrudGeneratorConfigHandler;
     }
     
     protected function setConfig(array $config)

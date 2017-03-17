@@ -13,7 +13,7 @@ class CrudGeneratorConfigFileHandler
     
     public function __construct()
     {
-        $config = require './config.php';
+        $config = require 'config.php';
         
         $this->laravelVersion = $config['laravelVersion'];
         $this->modelPath = $config['modelPath'];
@@ -24,7 +24,7 @@ class CrudGeneratorConfigFileHandler
         $this->blacklist = $config['blacklist'];
     }
     
-    public function newInstance()
+    static public function newInstance()
     {
         return new CrudGeneratorConfigFileHandler;
     }
