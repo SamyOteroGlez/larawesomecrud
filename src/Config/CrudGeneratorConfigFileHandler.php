@@ -19,10 +19,16 @@ class CrudGeneratorConfigFileHandler
     
     /**
      * Constructor.
+     * 
+     * @param type $path
+     * @param type $fileName
      */
-    public function __construct()
+    public function __construct($path = null, $fileName = null)
     {
-        $configJson = $this->getFile(dirname(__FILE__)."/config.json");
+        $path = ($path) ? $path : dirname(__FILE__).'/';
+        $fileName = ($fileName) ? $fileName : 'config';
+        
+        $configJson = $this->getFile($path.$fileName.".json");
         
         if ($configJson) {
             $config = $this->jsonDecode($configJson);
@@ -33,11 +39,13 @@ class CrudGeneratorConfigFileHandler
     /**
      * Return a new instance of the class.
      * 
+     * @param type $path
+     * @param type $fileName
      * @return \CrudGenerator\Config\CrudGeneratorConfigFileHandler
      */
-    static public function newInstance()
+    static public function newInstance($path = null, $fileName = null)
     {
-        return new CrudGeneratorConfigFileHandler;
+        return new CrudGeneratorConfigFileHandler($path, $fileName);
     }
     
     /**
@@ -201,16 +209,19 @@ class CrudGeneratorConfigFileHandler
     /**
      * Save the actual data into a new config.json file.
      * 
+     * @param type $path
      * @param type $fileName
      * @return $this
      */
-    public function saveDataToConfigJason($fileName = null)
+    public function saveDataToConfigJason($path = null, $fileName = null)
     {
-        $name = ($fileName) ? $fileName : 'config';
+        $path = ($path) ? $path : dirname(__FILE__).'/';
+        $fileName = ($fileName) ? $fileName : 'config';
+        
         $attributes = $this->getAttributes();
         $config = $this->jsonEncode($attributes);
         
-        $this->saveFile($config, dirname(__FILE__)."/".$name.".json");
+        $this->saveFile($config, $path.$fileName.".json");
         
         return $this;
     }

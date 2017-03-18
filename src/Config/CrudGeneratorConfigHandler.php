@@ -22,34 +22,41 @@ class CrudGeneratorConfigHandler
     protected $file;
     
     /**
-     * Constructor
+     * Constructor.
+     * 
+     * @param type $path
+     * @param type $fileName
      */
-    public function __construct()
+    public function __construct($path = null, $fileName = null)
     {
-        $this->file = CrudGeneratorConfigFileHandler::newInstance();
+        $this->file = CrudGeneratorConfigFileHandler::newInstance($path, $fileName);
     }
     
     /**
      * Returns a new instance of the class.
      * 
+     * @param type $path
+     * @param type $fileName
      * @return \CrudGenerator\Config\CrudGeneratorConfigHandler
      */
-    static public function newInstance()
+    static public function newInstance($path = null, $fileName = null)
     {
-        return new CrudGeneratorConfigHandler;
+        return new CrudGeneratorConfigHandler($path, $fileName);
     }
     
     /**
      * Save the configuration value.
      * 
-     * @param array $config
+     * @param array $confiParameters
+     * @param type $path
+     * @param type $fileName
      * @return $this
      */
-    public function saveConfigParameters(array $confiParameters)
+    public function saveConfigParameters(array $confiParameters, $path = null, $fileName = null)
     {
         if (is_array($confiParameters)) {
             $this->file->setAttributtes($confiParameters)
-                ->saveDataToConfigJason();
+                ->saveDataToConfigJason($path, $fileName);
         }
         
         return $this;

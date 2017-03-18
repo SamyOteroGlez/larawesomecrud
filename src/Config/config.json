@@ -1,12 +1,12 @@
 {
-    "laravelVersion": "laravel version",
-    "modelPath": "model path",
-    "controllerPath": "controller path",
-    "formRequestPath": "formrequest path",
-    "viewsPath": "views path",
-    "routePath": "route path",
+    "laravelVersion": "test laravel version",
+    "modelPath": "test model path",
+    "controllerPath": "test controller path",
+    "formRequestPath": "test formrequest path",
+    "viewsPath": "test views path",
+    "routePath": "test route path",
     "blacklist": {
-        "black list": "black list",
-        "elements": "elements"
+        "black list": "test black list",
+        "elements": "test elements"
     }
 }
