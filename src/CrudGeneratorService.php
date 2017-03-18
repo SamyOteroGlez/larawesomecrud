@@ -97,6 +97,7 @@ class CrudGeneratorService
             'appns' => $this->appNamespace
         ];
 
+        //change to config file path
         if(!$this->force) { 
             if(file_exists(app_path().'/'.$modelname.'.php')) { $this->output->info('The model class already exists, use --force to overwrite'); return; }
             if(file_exists(app_path().'/Http/Controllers/'.$this->controllerName.'Controller.php')) { $this->output->info('The controller class already exists, use --force to overwrite'); return; }
@@ -117,6 +118,7 @@ class CrudGeneratorService
         
         $this->createViewDirectory();
 
+        //change to config file path
         if('Request' !== $this->formRequest) {
             $options['formrequest'] =  $modelname . 'FormRequest';
             $options['requestPath'] = 'use App\Http\Requests\\'.$options['formrequest'].';';
@@ -143,6 +145,7 @@ class CrudGeneratorService
         $this->showSuccessMessage($modelname);
     }
     
+    //change to config file path
     protected function verifyDashboardMenuPartial()
     {
         if(!is_dir(base_path() . '/resources/views/dashboard')) {
@@ -156,12 +159,14 @@ class CrudGeneratorService
         $this->addNewLinkToDashboardMenu();
     }
     
+    //change to config file path
     protected function createDasboardFolder()
     {
         $this->output->info('Creating directory: ' . base_path() . '/resources/views/dasboard');
         mkdir(base_path() . '/resources/views/dashboard');
     }
     
+    //change to config file path
     protected function createDashboardMenuPartial()
     {
         $this->createFiles(
@@ -170,6 +175,7 @@ class CrudGeneratorService
         );
     }
     
+    //change to config file path
     protected function addNewLinkToDashboardMenu()
     {
         $text = '<li class=""><a href="{{route(\''.$this->viewFolderName.'.index\')}}">'.$this->viewFolderName.' <span class="sr-only">(current)</span></a></li>';
@@ -186,6 +192,7 @@ class CrudGeneratorService
      */
     protected function createViewDirectory()
     {
+        //change to config file path
         if(!is_dir(base_path() . '/resources/views/' . $this->viewFolderName)) {
             $this->output->info('Creating directory: ' . base_path() . '/resources/views/' . $this->viewFolderName);
             mkdir(base_path() . '/resources/views/' . $this->viewFolderName);
@@ -208,6 +215,7 @@ class CrudGeneratorService
      */
     protected function addRoutesToRouteFile()
     {
+        //change to config file path
         $startText = '//Start routes for ' . $this->viewFolderName;
         $this->addTextToRoutesFile($startText);
 
@@ -226,6 +234,7 @@ class CrudGeneratorService
      */
     protected function addTextToRoutesFile($text, $message = false)
     {
+        //change to config file path
         $this->appendToEndOfFile(base_path() . '/app/Http/routes.php', "\n" . $text, 0, true);
 
         if($message) {
@@ -240,6 +249,7 @@ class CrudGeneratorService
      */
     protected function generateFormRequestClassFile($modelName)
     {
+        //change to config file path
         $this->createFiles(
             'formrequest',
             app_path().'/Http/Requests/'. $modelName . 'FormRequest.php'
@@ -253,6 +263,7 @@ class CrudGeneratorService
      */
     protected function generateControllerClassFile()
     {
+        //change to config file path
         $this->createFiles(
             'controller',
             app_path().'/Http/Controllers/'.$this->controllerName.'Controller.php'
@@ -264,6 +275,7 @@ class CrudGeneratorService
      */
     protected function generateCreateViewFile()
     {
+        //change to config file path
         $this->createFiles(
             'view.create',
             base_path().'/resources/views/'.$this->viewFolderName.'/create.blade.php'
@@ -275,6 +287,7 @@ class CrudGeneratorService
      */
     protected function generateShowViewFile()
     {
+        //change to config file path
         $this->createFiles(
             'view.show',
             base_path().'/resources/views/'.$this->viewFolderName.'/show.blade.php'
@@ -286,6 +299,7 @@ class CrudGeneratorService
      */
     protected function generateEditViewFile()
     {
+        //change to config file path
         $this->createFiles(
             'view.edit',
             base_path().'/resources/views/'.$this->viewFolderName.'/edit.blade.php'
@@ -294,6 +308,7 @@ class CrudGeneratorService
 
     protected function generateFormViewFile()
     {
+        //change to config file path
         $this->createFiles(
             'view._form',
             base_path().'/resources/views/'.$this->viewFolderName.'/_form.blade.php'
@@ -305,6 +320,7 @@ class CrudGeneratorService
      */
     protected function generateIndexViewFile()
     {
+        //change to config file path
         $this->createFiles(
             'view.index',
             base_path().'/resources/views/'.$this->viewFolderName.'/index.blade.php'
@@ -496,6 +512,7 @@ class CrudGeneratorService
         
         Artisan::call('make:model', ['name' => $modelname]);
 
+        //change to config file path
         $this->appendUseDb(app_path().'/'.$modelname.'.php');        
         $this->output->info('Custom table name: '.$prefix.$table_name);
         $this->appendToEndOfFile(app_path().'/'.$modelname.'.php', "    protected \$table = '".$table_name."';\n\n}", 2, true);
@@ -506,10 +523,12 @@ class CrudGeneratorService
 
         $this->addAppends($modelname, $table_name);
 
+        //change to config file path
         if(!$cc->contains('name', 'updated_at') || !$cc->contains('name', 'created_at')) { 
             $this->appendToEndOfFile(app_path().'/'.$modelname.'.php', "\n    public \$timestamps = false;\n\n}", 2, true);
         }
 
+        //change to config file path
         $this->appendToEndOfFile(app_path().'/'.$modelname.'.php', "", 2, true);
 
         $dataRelated = $this->getRelatedObjData($table_name);
@@ -538,6 +557,7 @@ class CrudGeneratorService
 
         $this->appendAttributes($modelname, $table_name, $cc);
 
+        //change to config file path
         $this->appendToEndOfFile(app_path().'/'.$modelname.'.php', "\n}", 0, false);
 
         $this->output->info('Model created, columns: '.json_encode($columns));
@@ -557,6 +577,7 @@ class CrudGeneratorService
         $dataRelated = $this->getRelatedObjData($table_name);
         $columName = $columName[1]['name'];
 
+        //change to config file path
         if(!empty($dataRelated)) {
 
             foreach($dataRelated as $obj) {
@@ -577,6 +598,7 @@ class CrudGeneratorService
      */
     protected function addAppends($modelname, $table_name)
     {
+        //change to config file path
         $appends = "\n";
         $dataRelated = $this->getRelatedObjData($table_name);
 
@@ -622,6 +644,7 @@ class CrudGeneratorService
             }
         }
 
+        //change to config file path
         $this->appendToEndOfFile(app_path().'/'.$modelname.'.php', "    protected \$fillable = [$fillables                          ];\n\n}", 2, true);
     }
 
@@ -633,6 +656,7 @@ class CrudGeneratorService
      */
     protected function appendBelongTo($modelname, $referencedName)
     {
+        //change to config file path
         $referencedClassName = ucwords($referencedName);
         $this->appendToEndOfFile(app_path().'/'.$modelname.'.php', "\n    public function $referencedName()\n    {\n        return \$this->belongsTo('App\\$referencedClassName');\n    }\n", 0, true);
     }
@@ -645,6 +669,7 @@ class CrudGeneratorService
      */
     protected function appendHasMany($modelname, $relatedName)
     {
+        //change to config file path
         $relatedClassName = ucwords($relatedName);
         $this->appendToEndOfFile(app_path().'/'.$modelname.'.php', "\n    public function $relatedName()\n    {\n        return \$this->hasMany('App\\$relatedClassName');\n    }\n", 0, true);
     }
@@ -656,6 +681,7 @@ class CrudGeneratorService
      */
     protected function deletePreviousFiles($name)
     {
+        //change to config file path
         $todelete = [
                 app_path().'/Http/Controllers/'.ucfirst($name).'Controller.php',
                 base_path().'/resources/views/'.str_plural($name).'/index.blade.php',
