@@ -11,13 +11,6 @@ namespace CrudGenerator\Config;
 class CrudGeneratorConfigFileHandler
 {
     /**
-     * Stores a decoded json file with the configuration.
-     * 
-     * @var type 
-     */
-    public $data;
-    
-    /**
      * All the configurations options as part as the class.
      * 
      * @var type 
@@ -33,7 +26,7 @@ class CrudGeneratorConfigFileHandler
         
         if ($configJson) {
             $config = $this->jsonDecode($configJson);
-            $this->getDataFromConfigJsonFile($config);
+            $this->setAttributesFromConfigFile($config);
         }
     }
     
@@ -48,12 +41,56 @@ class CrudGeneratorConfigFileHandler
     }
     
     /**
+     * Get class attibutes as array.
+     * 
+     * @return type
+     */
+    public function getAttributes()
+    {
+        $attributes = [];
+        $attributeNames = get_class_vars(self::class);
+        
+        foreach ($attributeNames as $name => $value) {
+            $attributes[$name] = $this->$name;
+        }
+        
+        return $attributes;
+    }
+    
+    /**
+     * Set the attributes based on the json config file.
+     * 
+     * @param type $stdClass
+     * @return $this
+     */
+    protected function setAttributesFromConfigFile($stdClass)
+    {
+        $stdClassAttributes = get_object_vars($stdClass);
+        $attributeNames = get_class_vars(self::class);
+        
+        foreach ($stdClassAttributes as $attribute => $value) {
+            
+            if (array_key_exists($attribute, $attributeNames)) {
+                
+                if ($value instanceof \stdClass) {
+                    $value = get_object_vars($value);
+                }
+                
+                $this->$attribute = $value;
+            }
+        }
+        
+        return $this;
+    }
+    
+    /**
      * Set the attributes of the class. The variable $attributes needs to be an array where the is the attribute name 
      * and the value the attribute value.
      * 
      * ["laravelVersion" => "5.1"]
      * 
      * @param array $attributes
+     * @return $this
      */
     public function setAttributtes(array $attributes)
     {
@@ -66,87 +103,116 @@ class CrudGeneratorConfigFileHandler
                 $this->$functionName($value);
             }
         }
+        
+        return $this;
     }
     
     /**
      * Set laravel version.
      * 
      * @param type $laraverVersion
+     * @return $this
      */
     public function setLaravelVersion($laraverVersion)
     {
-        $this->laravelVersion = $laraverVersion;        
+        $this->laravelVersion = $laraverVersion;   
+        
+        return $this;
     }
     
     /**
      * Set model path.
      * 
      * @param type $modelPath
+     * @return $this
      */
     public function setModelPath($modelPath)
     {
         $this->modelPath = $modelPath;
+        
+        return $this;
     }
     
     /**
      * Set controller path.
      * 
      * @param type $controllerPath
+     * @return $this
      */
     public function setControllerPath($controllerPath)
     {
         $this->controllerPath = $controllerPath;
+        
+        return $this;
     }
     
     /**
      * Set fromrequest path.
      * 
      * @param type $formRequestPath
+     * @return $this
      */
     public function setFormRequestPath($formRequestPath)
     {
         $this->formRequestPath = $formRequestPath;
+        
+        return $this;
     }
     
     /**
      * Set views path.
      * 
      * @param type $viewsPath
+     * @return $this
      */
     public function setViewsPath($viewsPath)
     {
         $this->viewsPath = $viewsPath;
+        
+        return $this;
     }
     
     /**
      * Set route path.
      * 
      * @param type $routePaths
+     * @return $this
      */
     public function setRoutePath($routePaths)
     {
         $this->routePath = $routePaths;
+        
+        return $this;
     }
     
     /**
      * Set blacklist.
      * 
      * @param type $blacklist
+     * @return $this
      */
     public function setBlacklist($blacklist)
     {
         $this->blacklist = $blacklist;
+        
+        return $this;
     }
     
     /**
      * Save the actual data into a new config.json file.
+     * 
+     * @param type $fileName
+     * @return $this
      */
-    protected function saveDataToConfigJason()
+    public function saveDataToConfigJason($fileName = null)
     {
+        $name = ($fileName) ? $fileName : 'config';
         $attributes = $this->getAttributes();
         $config = $this->jsonEncode($attributes);
         
-        $this->saveFile($config, dirname(__FILE__)."/config.json");
+        $this->saveFile($config, dirname(__FILE__)."/".$name.".json");
+        
+        return $this;
     }
     
     /**
@@ -154,42 +220,26 @@ class CrudGeneratorConfigFileHandler
      * 
      * @param type $configFile
      * @param type $path
+     * @return $this
      */
-    protected function saveFile($configFile, $path)
+    protected function saveFile($fileToSave, $path)
     {
         $file = fopen($path, 'w+');
         fwrite($file, $fileToSave);
         fclose($file);
-    }
-    
-    /**
-     * Get class attibutes as array.
-     * 
-     * @return type
-     */
-    public function getAttributes()
-    {
-        return get_class_vars($this);
-    }
-    
-    /**
-     * Set the data accessible into this class.
-     * 
-     * @param type $config
-     */
-    protected function getDataFromConfigJsonFile($config)
-    {
-        $this->data = $config;
-    }
+        
+        return $this;
+    }    
     
     /**
      * Encode data into json.
      * 
      * @param type $toJson
+     * @return type
      */
     protected function jsonEncode($toJson)
     {
-        return json_encode($toJson);
+        return json_encode($toJson, JSON_PRETTY_PRINT);
     }
     
     /**

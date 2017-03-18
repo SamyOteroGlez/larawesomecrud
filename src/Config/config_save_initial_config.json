@@ -1,0 +1,17 @@
+{
+    "laravelVersion": "testVersion",
+    
+    "modelPath": "testmodelpath",
+    
+    "controllerPath": "testcontrollerpath",
+    
+    "formRequestPath": "testformrequestpath",
+    
+    "viewsPath": "testviewspath",
+    
+    "routePath": "testroutepath",
+    
+    "blacklist": {
+        "testblacklist": "testblacklist"
+    }
+}

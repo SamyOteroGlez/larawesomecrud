@@ -19,14 +19,14 @@ class CrudGeneratorConfigHandler
      * 
      * @var type 
      */
-    protected $config;
+    protected $file;
     
     /**
      * Constructor
      */
     public function __construct()
     {
-        $this->config = CrudGeneratorConfigFileHandler::newInstance();
+        $this->file = CrudGeneratorConfigFileHandler::newInstance();
     }
     
     /**
@@ -40,25 +40,47 @@ class CrudGeneratorConfigHandler
     }
     
     /**
-     * Set the configuration value.
+     * Save the configuration value.
      * 
      * @param array $config
+     * @return $this
      */
-    protected function setConfig(array $config)
+    public function saveConfigParameters(array $confiParameters)
     {
-        //$this->config = $config;
+        if (is_array($confiParameters)) {
+            $this->file->setAttributtes($confiParameters)
+                ->saveDataToConfigJason();
+        }
+        
+        return $this;
     }
     
+    /**
+     * Get the configuration parameters.
+     * 
+     * @return type
+     */
+    public function getConfigParameters()
+    {
+        return $this->file->getAttributes();
+    }
+
+
     /**
      * Set laravel version. By default will store the current laravel version.
      * 
      * @param type $version
+     * @return $this
      */
-    public function setLaravelVersion($version = null)
+    public function setLaravelVersion($laraverVersion = null)
     {
-        if (is_null($version)) {
-            $version = App::version();
+        if (is_null($laraverVersion)) {
+            $laraverVersion = App::version();
         }
+        
+        $this->file->setLaravelVersion($laraverVersion);
+        
+        return $this;
     }
     
     /**
@@ -68,17 +90,20 @@ class CrudGeneratorConfigHandler
      */
     public function getLaravelVersion()
     {
-        return $this->config->data->laravelVersion;
+        return $this->file->laravelVersion;
     }
     
     /**
      * Set all the paths (model, controller, formrequest, views, route).
      * 
      * @param array $paths
+     * @return $this
      */
     public function setPaths(array $paths)
     {
+        $this->setConfigParameters($paths);
         
+        return $this;
     }
     
     /**
@@ -89,11 +114,11 @@ class CrudGeneratorConfigHandler
     public function getPaths()
     {
         return [
-            'modelPath' => $this->config->data->modelPath,
-            'controllerPath' => $this->config->data->controllerPath,
-            'formRequestPath' => $this->config->data->formRequestPath,
-            'viewsPath' => $this->config->data->viewsPath,
-            'routePath' => $this->config->data->routPath
+            'modelPath' => $this->file->modelPath,
+            'controllerPath' => $this->file->controllerPath,
+            'formRequestPath' => $this->file->formRequestPath,
+            'viewsPath' => $this->file->viewsPath,
+            'routePath' => $this->file->routPath
         ];
     }
     
@@ -101,10 +126,13 @@ class CrudGeneratorConfigHandler
      * Set the model path.
      * 
      * @param type $modelPath
+     * @return $this
      */
     public function setModelPath($modelPath)
     {
+        $this->file->setModelPath($modelPath);
         
+        return $this;
     }
     
     /**
@@ -114,17 +142,20 @@ class CrudGeneratorConfigHandler
      */
     public function getModelPath()
     {
-        return $this->config->data->modelPath;
+        return $this->file->modelPath;
     }
     
     /**
      * Set the controller path.
      * 
      * @param type $controllerPaths
+     * @return $this
      */
     public function setControllerPath($controllerPaths)
     {
+        $this->file->setFormRequestPath($formRequestPath);
         
+        return $this;
     }
     
     /**
@@ -134,17 +165,20 @@ class CrudGeneratorConfigHandler
      */
     public function getControllerPath()
     {
-        return $this->config->data->controllerPath;
+        return $this->file->controllerPath;
     }
     
     /**
      * Set the formrequest path.
      * 
      * @param type $formRequestPath
+     * @return $this
      */
     public function setFormRequestPath($formRequestPath)
     {
+        $this->file->setFormRequestPath($formRequestPath);
         
+        return $this;
     }
     
     /**
@@ -154,17 +188,20 @@ class CrudGeneratorConfigHandler
      */
     public function getFormRequestPath()
     {
-        return $this->config->data->formRequestPath;
+        return $this->file->formRequestPath;
     }
     
     /**
      * Set the views path.
      * 
      * @param type $viewsPath
+     * @return $this
      */
     public function setViewsPath($viewsPath)
     {
+        $this->file->setViewsPath($viewsPath);
         
+        return $this;
     }
     
     /**
@@ -174,17 +211,20 @@ class CrudGeneratorConfigHandler
      */
     public function getViewsPath()
     {
-        return $this->config->data->viewsPath;
+        return $this->file->viewsPath;
     }
     
     /**
      * Set the route path.
      * 
      * @param type $routePath
+     * @return $this
      */
     public function setRoutePath($routePath)
     {
+        $this->file->setRoutePath($routePaths);
         
+        return $this;
     }
     
     /**
@@ -194,17 +234,20 @@ class CrudGeneratorConfigHandler
      */
     public function getRoutePath()
     {
-        return $this->config->data->routePath;
+        return $this->file->routePath;
     }
     
     /**
      * Set the blacklist.
      * 
      * @param array $blacklist
+     * @return $this
      */
     public function setBlacklist(array $blacklist)
     {
+        $this->file->setBlacklist($blacklist);
         
+        return $this;
     }
     
     /**
@@ -214,6 +257,6 @@ class CrudGeneratorConfigHandler
      */
     public function getBlacklist()
     {
-        return $this->config->data->blacklist;
+        return $this->file->blacklist;
     }
 }
