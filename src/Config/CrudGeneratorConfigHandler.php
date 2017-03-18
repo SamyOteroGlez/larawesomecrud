@@ -45,6 +45,20 @@ class CrudGeneratorConfigHandler
     }
     
     /**
+     * Create a new empty config.json file.
+     * 
+     * @param type $path
+     * @param type $fileName
+     * @return $this
+     */
+    public function createConfigFile($path, $fileName)
+    {
+        $this->file->createNewConfigurationFile($path, $fileName);
+        
+        return $this;
+    }
+    
+    /**
      * Save the configuration value.
      * 
      * @param array $confiParameters

@@ -227,6 +227,23 @@ class CrudGeneratorConfigFileHandler
     }
     
     /**
+     * Create a new config.json file.
+     * 
+     * @param string $path
+     * @param type $fileName
+     * @return $this
+     */
+    public function createNewConfigurationFile($path, $fileName)
+    {
+        $content = $this->jsonEncode($this->getAttributes());
+        $path = $path.$fileName.'.json';
+        
+        $this->saveFile($content, $path);
+        
+        return $this;
+    }
+    
+    /**
      * Save a file.
      * 
      * @param type $configFile
