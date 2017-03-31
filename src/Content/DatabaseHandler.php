@@ -17,13 +17,31 @@ class DatabaseHandler
 {
     protected $driver, $dbname, $tablename, $columns;
     
-    public function __construct($dbname, $tablename)
+    /**
+     * Constructor.
+     * 
+     * @param type $dbname
+     * @param type $tablename
+     */
+    public function __construct($tablename)
     {
         $this->driver = DB::getDriverName();
         $this->dbname = DB::connection()->getDatabaseName();
         $this->tablename = $tablename;
     }
 
+    /**
+     * Get new instance of DatabaseHandler class.
+     * 
+     * @param type $dbname
+     * @param type $tablename
+     * @return \DatabaseHandler
+     */
+    public function newInstance($dbname, $tablename)
+    {
+        return new DatabaseHandler($dbname, $tablename);
+    }
+    
     /**
      * Get the column name of the table to generate the model. Get the column type to generate the form fields.
      *
